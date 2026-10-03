@@ -52,11 +52,6 @@ export default function Home() {
               <div><dt>Based in</dt><dd>{profile.location}</dd></div>
             </dl>
           </div>
-          <div className="onrepeat">
-            <span className="side">On repeat this month</span>
-            <span className="swipe" aria-hidden="true">Swipe →</span>
-            <OnRepeat />
-          </div>
         </section>
 
         <section className="block wrap" id="work" aria-labelledby="work-h">
@@ -154,6 +149,13 @@ export default function Home() {
             <a href={profile.linkedin} {...ext}>LinkedIn</a>
             <a href={profile.x} {...ext}>X · {profile.xHandle}</a>
           </div>
+        </section>
+
+        <section className="listening wrap" id="listening" aria-labelledby="listening-h">
+          <span className="side">Off the record</span>
+          <h2 id="listening-h">What I&apos;m listening to this month</h2>
+          <span className="swipe" aria-hidden="true">Swipe →</span>
+          <OnRepeat />
         </section>
 
         <p className="sky-note wrap">
