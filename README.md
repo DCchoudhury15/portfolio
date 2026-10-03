@@ -1,13 +1,10 @@
 # divyanshu choudhury · portfolio
 
-My personal site, built as a late-night record label: projects are LP sleeves, open-source work is the
-tour, and a four-piece band plays in the background.
+My personal site, built as a late-night record label: projects are LP sleeves and open-source work
+is the tour.
 
 - **Light show.** The hero and every album sleeve are painted live by a WebGL shader in the style of
-  1960s oil-projector light shows. The hero pulses with the music.
-- **Soundtrack.** Four original tracks in the spirit of Cream, The Doors, Pink Floyd and Led Zeppelin,
-  synthesised in a Web Worker (plucked-string guitars, fuzz, wah, organ, electric piano, drums, tape
-  echo and reverb). No samples or recordings, so nothing to license.
+  1960s oil-projector light shows.
 - **On repeat.** The About section lists my top 5 Spotify tracks of the last ~4 weeks, refreshed hourly.
 
 Built with Next.js, React and TypeScript. No UI framework, no tracking.
@@ -46,9 +43,7 @@ app/globals.css           all styles
 app/api/top-tracks/       Spotify top tracks endpoint
 lib/content.ts            every piece of text on the site
 lib/lightshow.ts          WebGL light-show shader
-lib/music.ts              audio engine and setlist
-public/synth-worker.js    the synthesiser that renders the tracks
-components/               nav, hero, sleeves, player, on-repeat list
+components/               nav, hero, sleeves, on-repeat list
 ```
 
 To update the site's text, edit `lib/content.ts`.

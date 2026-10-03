@@ -1,6 +1,5 @@
 /* A late-night record label. A full-bleed liquid light show behind the name, then Side A
-   (projects as LP sleeves), Side B (GSoC and session work), the rig, liner notes and contact.
-   A slim player docks at the bottom and keeps the band playing. */
+   (projects as LP sleeves), Side B (GSoC and session work), the rig, liner notes and contact. */
 :root {
   color-scheme: dark;
   --bg: #0b0a0d;          /* the room */
@@ -18,7 +17,7 @@
 * { box-sizing: border-box; }
 html { background: var(--bg); scroll-behavior: smooth; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
-body { margin: 0; background: var(--bg); color: var(--text); font: 400 19px/1.62 var(--body); padding-block: 0 96px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 19px/1.62 var(--body); padding-block: 0 48px; }
 body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: .07; mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
 a { color: inherit; }
@@ -52,11 +51,6 @@ a { color: inherit; }
 .btn.primary:hover { transform: translateY(-2px); background: #dbb05a; }
 .btn.ghost { border-color: rgba(236,228,214,.3); color: var(--text); background: rgba(11,10,13,.25); backdrop-filter: blur(6px); }
 .btn.ghost:hover { border-color: var(--text); }
-.tri { width: 0; height: 0; border-left: 10px solid currentColor; border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
-.bars { display: inline-flex; gap: 3px; align-items: flex-end; height: 14px; }
-.bars i { width: 3px; background: currentColor; height: 40%; animation: bar 1s ease-in-out infinite; }
-.bars i:nth-child(2) { animation-delay: -.3s; } .bars i:nth-child(3) { animation-delay: -.6s; }
-@keyframes bar { 0%, 100% { height: 25%; } 50% { height: 100%; } }
 .facts { display: flex; flex-wrap: wrap; gap: 10px 36px; margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); font: 400 15px/1.4 var(--ui); color: var(--muted); }
 .facts b { display: block; font: 400 26px/1.1 var(--display); color: var(--text); margin-bottom: 2px; }
 
@@ -150,25 +144,6 @@ section.block { padding-block: 120px 0; }
 .socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px; font: 600 14px/1 var(--ui); }
 .socials a { text-decoration: none; color: var(--muted); transition: color .2s; }
 .socials a:hover { color: var(--text); }
-footer.colophon { text-align: center; color: var(--muted); font: 400 13px/1.6 var(--ui); padding-block: 40px 0; border-top: 1px solid var(--line); margin-top: 60px; }
-
-/* ---------- Player ---------- */
-.player { position: fixed; z-index: 55; left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); translate: -50% 0; width: min(600px, calc(100% - 24px)); display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 14px; padding: 10px 14px 10px 10px; border-radius: 999px; background: rgba(22, 19, 27, .82); backdrop-filter: blur(18px) saturate(1.3); -webkit-backdrop-filter: blur(18px) saturate(1.3); border: 1px solid rgba(236,228,214,.12); box-shadow: 0 20px 50px -10px rgba(0,0,0,.7); }
-.disc { width: 44px; height: 44px; border-radius: 50%; position: relative; background: repeating-radial-gradient(circle, #121014 0 1.5px, #1d1a21 1.5px 3px); box-shadow: inset 0 0 0 1px rgba(255,255,255,.06); animation: spin 2.2s linear infinite; animation-play-state: paused; }
-.disc::after { content: ""; position: absolute; inset: 32%; border-radius: 50%; background: conic-gradient(from 40deg, var(--gold), #b04a64, #3d8f86, var(--gold)); box-shadow: 0 0 0 2px #0b0a0d; }
-.is-playing .disc { animation-play-state: running; }
-@keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .disc, .bars i { animation: none; } }
-.ptxt { min-width: 0; display: grid; gap: 3px; }
-.ptxt b { font: 600 14px/1.2 var(--ui); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.ptxt span { font: 400 12.5px/1.2 var(--ui); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.pbtn { appearance: none; cursor: pointer; width: 44px; height: 44px; border-radius: 50%; border: 0; background: var(--gold); color: var(--gold-ink); display: grid; place-items: center; transition: transform .15s; }
-.pbtn:hover { transform: scale(1.06); }
-.pbtn .pause { display: block; width: 12px; height: 14px; background: linear-gradient(90deg, currentColor 0 34%, transparent 34% 66%, currentColor 66%); }
-.vol { width: 84px; accent-color: var(--gold); }
-.pctl { display: flex; align-items: center; gap: 4px; }
-.skip { appearance: none; cursor: pointer; width: 36px; height: 36px; border-radius: 50%; border: 0; background: transparent; color: var(--muted); display: grid; place-items: center; transition: color .2s, background .2s; }
-.skip:hover { color: var(--text); background: rgba(236,228,214,.08); }
 
 @media (max-width: 900px) {
   .nav ul { display: none; }
@@ -177,8 +152,6 @@ footer.colophon { text-align: center; color: var(--muted); font: 400 13px/1.6 va
   .record { padding: 18px; gap: 26px; }
   .gsoc { padding: 26px; gap: 30px; }
   .sessions, .rig { grid-template-columns: minmax(0, 1fr); }
-  .vol { display: none; }
-  .player { grid-template-columns: auto minmax(0, 1fr) auto; }
   section.block { padding-block: 88px 0; }
 }
 @media (min-width: 901px) and (max-width: 1100px) { .sessions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

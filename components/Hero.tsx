@@ -2,9 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { createLightShow, LOOKS } from "@/lib/lightshow";
-import { music } from "@/lib/music";
 
-/** Full-bleed liquid light show behind the hero. Pulses with the soundtrack's bass. */
+/** Full-bleed liquid light show behind the hero. */
 export default function HeroLightShow() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -29,23 +28,19 @@ export default function HeroLightShow() {
     const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
     io.observe(canvas);
 
+    // With reduced motion the show stays as a still frame.
     let raf = 0;
-    let energy = 0;
     const frame = (ms: number) => {
-      energy += (music.energy() - energy) * 0.25;
-      if (visible) draw!(LOOKS.hero, ms / 1000 + 20, energy);
-      if (!reduced || music.state.playing) raf = requestAnimationFrame(frame);
-      else raf = 0;
+      if (visible) draw!(LOOKS.hero, ms / 1000 + 20, 0);
+      raf = requestAnimationFrame(frame);
     };
-    raf = requestAnimationFrame(frame);
-    // With reduced motion the show only moves while music plays.
-    const unsub = music.subscribe(() => { if (reduced && music.state.playing && !raf) raf = requestAnimationFrame(frame); });
+    if (!reduced) raf = requestAnimationFrame(frame);
 
     let t: ReturnType<typeof setTimeout>;
     const onResize = () => { clearTimeout(t); t = setTimeout(() => { fit(); draw!(LOOKS.hero, performance.now() / 1000 + 20, 0); }, 150); };
     window.addEventListener("resize", onResize);
 
-    return () => { cancelAnimationFrame(raf); io.disconnect(); unsub(); window.removeEventListener("resize", onResize); };
+    return () => { cancelAnimationFrame(raf); io.disconnect(); window.removeEventListener("resize", onResize); };
   }, []);
 
   return <canvas ref={ref} aria-hidden="true" />;

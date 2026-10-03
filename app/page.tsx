@@ -1,8 +1,6 @@
 import Nav from "@/components/Nav";
 import HeroLightShow from "@/components/Hero";
-import PlayButton from "@/components/PlayButton";
 import Sleeve from "@/components/Sleeve";
-import Player from "@/components/Player";
 import OnRepeat from "@/components/OnRepeat";
 import CopyEmail from "@/components/CopyEmail";
 import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
@@ -31,8 +29,8 @@ export default function Home() {
             pipelines, package managers, and build tooling for a European neuroscience platform.
           </p>
           <div className="cta">
-            <PlayButton />
-            <a className="btn ghost" href="#work">See the work</a>
+            <a className="btn primary" href="#work">See the work</a>
+            <a className="btn ghost" href="#contact">Get in touch</a>
           </div>
           <div className="facts">
             <div><b>GSoC 2026</b>INCF / EBRAINS</div>
@@ -154,14 +152,7 @@ export default function Home() {
             <a href={profile.x} {...ext}>X · {profile.xHandle}</a>
           </div>
         </section>
-
-        <footer className="colophon wrap">
-          The soundtrack is four original pieces in the spirit of Cream, The Doors, Pink Floyd and Led Zeppelin,
-          synthesised live in your browser. No samples, no recordings.
-        </footer>
       </main>
-
-      <Player />
     </>
   );
 }
