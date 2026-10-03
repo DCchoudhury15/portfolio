@@ -89,6 +89,8 @@ export default function NightSky() {
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Phones and tablets: lighter drawing, snappier tilt response, tap instead of hover.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
     const scene = document.createElement("canvas");
     const sctx = scene.getContext("2d")!;
     const f = dir(VIEW_AZ, VIEW_ALT);
@@ -135,7 +137,7 @@ export default function NightSky() {
     const hills = (az: number) => 0.6 + 2.2 * fbm(az * 0.045, 3.7) + 0.6 * fbm(az * 0.3, 9.1);
 
     const render = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, touch ? 1.25 : 1.5);
       w = window.innerWidth; h = window.innerHeight;
       canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
       canvas.style.width = w + "px"; canvas.style.height = h + "px";
@@ -150,7 +152,7 @@ export default function NightSky() {
 
       // Sky glow: darkest overhead, a little lighter and warmer towards the horizon,
       // with a faint wash of moonlight from the west (on the right).
-      const STEP = 4, cw = Math.ceil(W / STEP), ch = Math.ceil(H / STEP);
+      const STEP = touch ? 6 : 4, cw = Math.ceil(W / STEP), ch = Math.ceil(H / STEP);
       const img = g.createImageData(cw, ch);
       const px = img.data;
       for (let y = 0; y < ch; y++) {
@@ -274,19 +276,33 @@ export default function NightSky() {
     // Hover: find the star nearest the pointer, favouring brighter ones.
     let hover = -1;
     const hot = new Map<number, number>(); // star index -> how lit up it is, 0..1
-    const onPointer = (e: PointerEvent) => {
-      tx = (e.clientX / w - 0.5) * 2; ty = (e.clientY / h - 0.5) * 2;
-      hover = -1;
-      if (e.pointerType === "touch" || !overOpenSky(e.target as Element) || isNaN(lastX)) return;
-      const sx = e.clientX + lastX, sy = e.clientY + lastY;
+    const nearestStar = (clientX: number, clientY: number, reach: number) => {
+      if (isNaN(lastX)) return -1;
+      const sx = clientX + lastX, sy = clientY + lastY;
       const gx = Math.floor(sx / CELL), gy = Math.floor(sy / CELL);
-      let best = 22;
+      let best = reach, found = -1;
       for (let i = gx - 1; i <= gx + 1; i++) for (let j = gy - 1; j <= gy + 1; j++) {
         for (const n of grid.get(`${i},${j}`) ?? []) {
           const d = Math.hypot(pts[n].x - sx, pts[n].y - sy) - pts[n].r * 2.5;
-          if (d < best) { best = d; hover = n; }
+          if (d < best) { best = d; found = n; }
         }
       }
+      return found;
+    };
+    const onPointer = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return; // fingers tap stars instead; tilt moves the sky
+      tx = (e.clientX / w - 0.5) * 2; ty = (e.clientY / h - 0.5) * 2;
+      hover = overOpenSky(e.target as Element) ? nearestStar(e.clientX, e.clientY, 22) : -1;
+    };
+    // On a phone, tapping open sky lights up the nearest star for a moment.
+    let tapTimer: ReturnType<typeof setTimeout> | undefined;
+    const onTap = (e: PointerEvent) => {
+      if (e.pointerType !== "touch" || !overOpenSky(e.target as Element)) return;
+      const n = nearestStar(e.clientX, e.clientY, 36);
+      if (n < 0) return;
+      hover = n;
+      clearTimeout(tapTimer);
+      tapTimer = setTimeout(() => { if (hover === n) hover = -1; }, 1600);
     };
     const drawHot = (st: Pt, e: number, t: number, offX: number, offY: number) => {
       const x = st.x - offX, y = st.y - offY;
@@ -309,8 +325,8 @@ export default function NightSky() {
     };
     const onTilt = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
-      tx = Math.max(-1, Math.min(1, e.gamma / 30));
-      ty = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+      tx = Math.max(-1, Math.min(1, e.gamma / 25));
+      ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
     };
     // iOS only shares tilt after asking, and only from a tap.
     const askTilt = () => {
@@ -321,14 +337,16 @@ export default function NightSky() {
     let last = 0, raf = 0, lastX = NaN, lastY = NaN, lastFrame = 0;
     const frame = (ms: number) => {
       const rg = range();
-      cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
-      // Keep the drift small so a star does not slide away from the pointer reaching for it.
-      const offX = rg.x + cx * Math.min(20, rg.x);
-      const offY = scroll * rg.y + cy * Math.min(30, rg.y * 0.05);
-      const moved = Math.abs(offX - lastX) > 0.1 || Math.abs(offY - lastY) > 0.1;
-      // Grow and fade by elapsed time, so it feels the same at any frame rate.
+      // Everything eases by elapsed time, so it feels the same at any frame rate.
       const dt = Math.min(100, ms - (lastFrame || ms)) / 16.7;
       lastFrame = ms;
+      const follow = 1 - Math.pow(touch ? 0.8 : 0.94, dt);
+      cx += (tx - cx) * follow; cy += (ty - cy) * follow;
+      // Keep the mouse drift small so a star does not slide away from the pointer reaching for it;
+      // tilting a phone moves the sky a little further.
+      const offX = rg.x + cx * Math.min(touch ? 34 : 20, rg.x);
+      const offY = scroll * rg.y + cy * Math.min(touch ? 34 : 30, rg.y * 0.05);
+      const moved = Math.abs(offX - lastX) > 0.1 || Math.abs(offY - lastY) > 0.1;
       if (hover >= 0) { const e = hot.get(hover) ?? 0; hot.set(hover, e + (1 - e) * (1 - Math.pow(0.82, dt))); }
       hot.forEach((e, n) => { if (n !== hover) { e *= Math.pow(0.9, dt); if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
       if (moved || hot.size > 0 || ms - last > 60) {
@@ -369,6 +387,7 @@ export default function NightSky() {
       document.addEventListener("mouseout", onLeaveWindow);
       window.addEventListener("deviceorientation", onTilt);
       window.addEventListener("pointerdown", askTilt, { once: true });
+      window.addEventListener("pointerdown", onTap, { passive: true });
     }
     let timer: ReturnType<typeof setTimeout>;
     const onResize = () => { clearTimeout(timer); timer = setTimeout(() => { hot.clear(); hover = -1; render(); readScroll(); lastX = NaN; if (reduced) still(); }, 200); };
@@ -381,6 +400,8 @@ export default function NightSky() {
       document.removeEventListener("mouseout", onLeaveWindow);
       window.removeEventListener("deviceorientation", onTilt);
       window.removeEventListener("pointerdown", askTilt);
+      window.removeEventListener("pointerdown", onTap);
+      clearTimeout(tapTimer);
       window.removeEventListener("resize", onResize);
     };
   }, []);
