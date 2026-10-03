@@ -165,13 +165,13 @@ export const about = [
   "I'm most interested in DevOps, distributed systems and backend infrastructure. When I'm not working on those, I'm usually doing competitive programming or building side projects like AgentWard.",
 ]
 
-export type Track = { title: string; artist: string; album: string; url: string; art: string | null };
+export type Artist = { name: string; url: string; art: string | null };
 
 // Shown until the live Spotify list loads, and whenever Spotify is unreachable.
-export const onRepeatFallback: Track[] = [
-  { title: "The Changeling", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/2LpZ9kQet5vF5jWDu5gOOl", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
-  { title: "L.A. Woman", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/7edxTBMHCBGeuZXu08woVM", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
-  { title: "Riders on the Storm", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/6y7cf3GYYnJKDdomCIIk8d", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
-  { title: "Hyacinth House", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/50bbgK5VVSsEseolfSuOYN", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
-  { title: "Back Door Man", artist: "The Doors", album: "The Doors", url: "https://open.spotify.com/track/03By6gD02qhtvIQiK8KidK", art: "https://i.scdn.co/image/ab67616d00001e0200d037dd3dfb578da4692088" },
+export const topArtistsFallback: Artist[] = [
+  { name: "The Doors", url: "https://open.spotify.com/artist/22WZ7M8sxp5THdruNY3gXt", art: "https://i.scdn.co/image/ab67616100005174440959e022afc20e819050bd" },
+  { name: "Led Zeppelin", url: "https://open.spotify.com/artist/36QJpDe2go2KgaRleHCDTp", art: "https://i.scdn.co/image/207803ce008388d3427a685254f9de6a8f61dc2e" },
+  { name: "Pink Floyd", url: "https://open.spotify.com/artist/0k17h0D3J5VfsdmQ1iZtE9", art: "https://i.scdn.co/image/ab676161000051743c9e8c67b087ba0cb5923b78" },
+  { name: "The Rolling Stones", url: "https://open.spotify.com/artist/22bE4uQ6baNwSHPVcDxLCe", art: "https://i.scdn.co/image/ab676161000051742b72b000ac948eba03bb3afe" },
+  { name: "Creedence Clearwater Revival", url: "https://open.spotify.com/artist/3IYUhFvPQItj6xySrBmZkd", art: "https://i.scdn.co/image/ab67616100005174d2e2b04b7ba5d60b72f54506" },
 ];

@@ -5,7 +5,7 @@ is the tour.
 
 - **Light show.** The hero and every album sleeve are painted live by a WebGL shader in the style of
   1960s oil-projector light shows.
-- **On repeat.** The About section lists my top 5 Spotify tracks of the last ~4 weeks, refreshed hourly.
+- **Listening.** A small closing section shows my top 5 Spotify artists of the last ~4 weeks, refreshed hourly.
 - **Night sky.** The page background is the real sky over Jabalpur at 9 pm on the night I was born,
   looking south-east where the Milky Way was rising: every naked-eye star in its true position and
   colour, thousands of fainter ones, the Milky Way with its dust lanes, and Jupiter. Scrolling tilts the
@@ -24,7 +24,7 @@ npm run build && npm start
 
 ## Live Spotify list (optional)
 
-Without these variables the site shows a built-in list. To make it follow your real listening:
+Without these variables the site shows a built-in list of artists. To make it follow your real listening:
 
 1. Create an app at <https://developer.spotify.com/dashboard>, tick **Web API**, and set the redirect URI
    to `http://127.0.0.1:8888/callback` (Spotify no longer accepts `localhost`).
@@ -34,22 +34,22 @@ Without these variables the site shows a built-in list. To make it follow your r
    ```
 3. Put the three values in `.env.local` (see `.env.example`) and in your host's environment variables.
 
-Spotify recalculates top tracks about once a day over a rolling ~4 weeks; `/api/top-tracks` caches for an
+Spotify recalculates top artists about once a day over a rolling ~4 weeks; `/api/top-artists` caches for an
 hour. Secrets stay on the server.
 
-To just print your current top 5 in the terminal: `node scripts/top-tracks.mjs` with the same two
-variables (add `medium_term` or `long_term` for longer ranges).
+To just print your current top 5 artists in the terminal: `node scripts/top-artists.mjs` with the same
+two variables (add `medium_term` or `long_term` for longer ranges).
 
 ## Layout
 
 ```
 app/page.tsx              the page
 app/globals.css           all styles
-app/api/top-tracks/       Spotify top tracks endpoint
+app/api/top-artists/      Spotify top artists endpoint
 lib/content.ts            every piece of text on the site
 lib/lightshow.ts          WebGL light-show shader
 lib/sky.json              precomputed birth-night sky (scripts/build-sky.mjs)
-components/               nav, hero, sleeves, on-repeat list
+components/               nav, hero, sleeves, night sky, top artists
 ```
 
 To update the site's text, edit `lib/content.ts`.

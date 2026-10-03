@@ -1,9 +1,9 @@
-// Prints your top 5 Spotify tracks from the last ~4 weeks, with links.
+// Prints your top 5 Spotify artists from the last ~4 weeks, with links.
 //
-//   SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... node scripts/top-tracks.mjs
+//   SPOTIFY_CLIENT_ID=... SPOTIFY_CLIENT_SECRET=... node scripts/top-artists.mjs
 //
-// Opens a login link, you approve once, and the songs print in the terminal.
-// Also saves them to top-tracks.json next to where you ran it.
+// Opens a login link, you approve once, and the artists print in the terminal.
+// Also saves them to top-artists.json next to where you ran it.
 
 import http from "node:http";
 import { writeFileSync } from "node:fs";
@@ -39,23 +39,17 @@ const server = http.createServer(async (req, res) => {
     const tok = await tokenRes.json();
     if (!tokenRes.ok) throw new Error(`Token exchange failed: ${JSON.stringify(tok)}`);
 
-    const topRes = await fetch(`https://api.spotify.com/v1/me/top/tracks?time_range=${RANGE}&limit=5`, {
+    const topRes = await fetch(`https://api.spotify.com/v1/me/top/artists?time_range=${RANGE}&limit=5`, {
       headers: { Authorization: `Bearer ${tok.access_token}` },
     });
     const top = await topRes.json();
     if (!topRes.ok) throw new Error(`Top tracks failed: ${JSON.stringify(top)}`);
 
-    const tracks = top.items.map((t, i) => ({
-      rank: i + 1,
-      title: t.name,
-      artist: t.artists.map((a) => a.name).join(", "),
-      album: t.album.name,
-      url: t.external_urls.spotify,
-    }));
-    writeFileSync("top-tracks.json", JSON.stringify(tracks, null, 2));
-    console.log(`\nYour top ${tracks.length} tracks (${RANGE}):\n`);
-    tracks.forEach((t) => console.log(`${t.rank}. ${t.title} · ${t.artist}\n   ${t.url}`));
-    console.log("\nSaved to top-tracks.json");
+    const artists = top.items.map((a, i) => ({ rank: i + 1, name: a.name, url: a.external_urls.spotify }));
+    writeFileSync("top-artists.json", JSON.stringify(artists, null, 2));
+    console.log(`\nYour top ${artists.length} artists (${RANGE}):\n`);
+    artists.forEach((a) => console.log(`${a.rank}. ${a.name}\n   ${a.url}`));
+    console.log("\nSaved to top-artists.json");
     res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" }).end("Done. Go back to the terminal.");
   } catch (err) {
     console.error(err.message);

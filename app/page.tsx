@@ -2,7 +2,7 @@ import Nav from "@/components/Nav";
 import NightSky from "@/components/NightSky";
 import HeroLightShow from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
-import OnRepeat from "@/components/OnRepeat";
+import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
 import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
 
@@ -41,6 +41,8 @@ export default function Home() {
         <section className="block wrap" id="about" aria-labelledby="about-h">
           <div className="head">
             <div><span className="side">Liner notes</span><h2 id="about-h">About me</h2></div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className="about-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={400} height={400} />
           </div>
           <div className="notes">
             <div className="prose">{about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
@@ -156,9 +158,9 @@ export default function Home() {
 
         <section className="listening wrap" id="listening" aria-labelledby="listening-h">
           <span className="side">Off the record</span>
-          <h2 id="listening-h">What I&apos;m listening to this month</h2>
+          <h2 id="listening-h">Who I&apos;m listening to this month</h2>
           <span className="swipe" aria-hidden="true">Swipe →</span>
-          <OnRepeat />
+          <TopArtists />
         </section>
 
         <p className="sky-note wrap">
