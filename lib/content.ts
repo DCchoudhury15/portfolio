@@ -9,6 +9,9 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
   x: "https://x.com/Divyanscpu15",
   xHandle: "@Divyanscpu15",
+  instagram: "https://www.instagram.com/ch.divyanshu/",
+  instagramHandle: "@ch.divyanshu",
+  discord: "dj_choudhury",
   codolio: "https://codolio.com/profile/HSTFfsyv",
 };
 
@@ -28,8 +31,8 @@ export const projects: Project[] = [
   {
     id: "agentward",
     cat: "DC-001",
-    year: "LP · 2026",
-    no: "A1 · flagship",
+    year: "2026",
+    no: "01 · flagship",
     title: "AgentWard",
     hook: "A GPS tracker for sensitive data inside AI agents.",
     desc: "AI agents pass data through tools, LLMs and external APIs, and an API key or a customer's address can slip out anywhere along that chain. The AgentRaft paper found this in 57% of the call chains it analysed, but only offline. AgentWard enforces the same formal model live: it detects sensitive fields, carries taint along OpenTelemetry baggage and span links, applies a Rego policy in a sidecar collector, redacts before anything leaves, and records lineage in SigNoz. No LLM sits in the hot path.",
@@ -42,8 +45,8 @@ export const projects: Project[] = [
   {
     id: "audio",
     cat: "DC-002",
-    year: "LP · 2025",
-    no: "A2",
+    year: "2025",
+    no: "02",
     title: "Audio Visualizer",
     hook: "See how a neural network hears.",
     desc: "A ResNet-style CNN classifies sounds into the 50 environmental categories of ESC-50, then shows its working: the mel spectrogram it was given, the feature maps of every convolutional layer, and the raw waveform. Inference runs on an A10G GPU on Modal, behind a Next.js front end.",
@@ -53,8 +56,8 @@ export const projects: Project[] = [
   {
     id: "chatai",
     cat: "DC-003",
-    year: "LP · 2025",
-    no: "A3",
+    year: "2025",
+    no: "03",
     title: "Chat-AI",
     hook: "Video meetings with AI agents you design.",
     desc: "Create agents with their own instructions and bring them into live video calls. Built on Stream's video SDK and OpenAI's realtime API, with tRPC and React Query, Drizzle on Neon Postgres, Better Auth, and Inngest for background work after a call.",
@@ -64,8 +67,8 @@ export const projects: Project[] = [
   {
     id: "resumez",
     cat: "DC-004",
-    year: "LP · 2025",
-    no: "A4",
+    year: "2025",
+    no: "04",
     title: "Resumez",
     hook: "Resumes, written a little like code.",
     desc: "A full-stack resume builder for developers: write and customise with live preview, choose from several templates, and show projects with code snippets alongside the usual sections.",

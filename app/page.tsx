@@ -4,6 +4,7 @@ import HeroLightShow from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
 import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
+import CopyDiscord from "@/components/CopyDiscord";
 import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
 
 const ext = { target: "_blank", rel: "noopener" } as const;
@@ -42,7 +43,7 @@ export default function Home() {
       <main>
         <section className="block wrap" id="about" aria-labelledby="about-h">
           <div className="head">
-            <div><span className="side">Liner notes</span><h2 id="about-h">About me</h2></div>
+            <div><span className="side">Introduction</span><h2 id="about-h">About me</h2></div>
           </div>
           <div className="notes">
             <div className="prose">{about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
@@ -58,7 +59,7 @@ export default function Home() {
 
         <section className="block wrap" id="work" aria-labelledby="work-h">
           <div className="head">
-            <div><span className="side">Side A</span><h2 id="work-h">Things I built</h2></div>
+            <div><span className="side">Projects</span><h2 id="work-h">Things I built</h2></div>
             <p>
               Each one started as a problem I wanted solved properly: data leaking out of AI agents, a neural network
               nobody could see inside, a meeting an AI could actually sit in on.
@@ -85,7 +86,7 @@ export default function Home() {
 
         <section className="block wrap" id="experience" aria-labelledby="exp-h">
           <div className="head">
-            <div><span className="side">Side B</span><h2 id="exp-h">On tour</h2></div>
+            <div><span className="side">Experience</span><h2 id="exp-h">Where I&apos;ve worked</h2></div>
             <p>
               A summer inside a scientific computing platform, and code merged into some of the most widely used
               open-source projects there are.
@@ -108,7 +109,7 @@ export default function Home() {
           </div>
 
           <div className="sessions-title">
-            <h3>Session work · merged upstream</h3>
+            <h3>Open-source contributions · merged upstream</h3>
             <a href="https://github.com/pulls?q=is%3Apr+author%3ADCchoudhury15+is%3Amerged+-user%3ADCchoudhury15" {...ext}>All 38 merged PRs on GitHub ↗</a>
             <span className="swipe" aria-hidden="true">Swipe →</span>
           </div>
@@ -135,7 +136,7 @@ export default function Home() {
 
         <section className="block wrap" id="rig" aria-labelledby="rig-h">
           <div className="head">
-            <div><span className="side">The rig</span><h2 id="rig-h">What I play</h2></div>
+            <div><span className="side">Skills</span><h2 id="rig-h">What I work with</h2></div>
             <p>Most at home in systems code: observability, packaging, build systems and the infrastructure underneath.</p>
           </div>
           <div className="rig">
@@ -145,7 +146,7 @@ export default function Home() {
 
 
         <section className="contact wrap" id="contact" aria-labelledby="contact-h">
-          <span className="side">Encore</span>
+          <span className="side">Contact</span>
           <h2 id="contact-h">Let&apos;s work <em>together</em></h2>
           <p>Internships, open-source collaboration, or a good systems problem. My inbox is open.</p>
           <CopyEmail email={profile.email} />
@@ -153,11 +154,13 @@ export default function Home() {
             <a href={profile.github} {...ext}>GitHub</a>
             <a href={profile.linkedin} {...ext}>LinkedIn</a>
             <a href={profile.x} {...ext}>X · {profile.xHandle}</a>
+            <a href={profile.instagram} {...ext}>Instagram · {profile.instagramHandle}</a>
+            <CopyDiscord username={profile.discord} />
           </div>
         </section>
 
         <section className="listening wrap" id="listening" aria-labelledby="listening-h">
-          <span className="side">Off the record</span>
+          <span className="side">Outside of work</span>
           <h2 id="listening-h">Who I&apos;m listening to this month</h2>
           <span className="swipe" aria-hidden="true">Swipe →</span>
           <TopArtists />
