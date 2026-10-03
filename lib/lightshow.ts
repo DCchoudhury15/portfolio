@@ -93,20 +93,53 @@ export function createLightShow(canvas: HTMLCanvasElement, keepBuffer = false): 
   };
 }
 
-// One shared offscreen renderer paints every album sleeve, so the page only holds two WebGL contexts.
+// One shared offscreen renderer paints every album sleeve, so the page holds only two WebGL
+// contexts however many sleeves there are. Visible sleeves are animated from a single loop.
+const SLEEVE_PX = 512;
 let sleeveCanvas: HTMLCanvasElement | null = null;
 let sleeveDraw: Draw | null | undefined;
+const sleeves = new Map<HTMLCanvasElement, { look: Look; visible: boolean }>();
+let loop = 0;
 
-export function paintSleeve(target: HTMLCanvasElement, look: Look): boolean {
+function renderer(): Draw | null {
   if (sleeveDraw === undefined) {
     sleeveCanvas = document.createElement("canvas");
-    sleeveCanvas.width = sleeveCanvas.height = 640;
+    sleeveCanvas.width = sleeveCanvas.height = SLEEVE_PX;
     try { sleeveDraw = createLightShow(sleeveCanvas, true); } catch { sleeveDraw = null; }
   }
-  if (!sleeveDraw || !sleeveCanvas) return false;
-  sleeveDraw(look, 30 + (look.seed % 13), 0);
+  return sleeveDraw;
+}
+
+function paint(target: HTMLCanvasElement, look: Look, time: number): boolean {
+  const draw = renderer();
   const ctx = target.getContext("2d");
-  if (!ctx) return false;
+  if (!draw || !sleeveCanvas || !ctx) return false;
+  draw(look, time, 0);
   ctx.drawImage(sleeveCanvas, 0, 0, target.width, target.height);
   return true;
+}
+
+// Each sleeve starts at its own point in time so the four covers never look alike.
+const startTime = (look: Look) => 30 + (look.seed % 13);
+
+function tick(ms: number) {
+  let any = false;
+  sleeves.forEach((s, canvas) => { if (s.visible) { any = true; paint(canvas, s.look, startTime(s.look) + ms / 1000); } });
+  loop = any ? requestAnimationFrame(tick) : 0;
+}
+
+/** Paints a sleeve and keeps it moving while it is on screen. Returns a cleanup function,
+ *  or null if WebGL is unavailable. */
+export function animateSleeve(canvas: HTMLCanvasElement, look: Look): (() => void) | null {
+  if (!paint(canvas, look, startTime(look))) return null;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
+  sleeves.set(canvas, { look, visible: false });
+  const io = new IntersectionObserver(([entry]) => {
+    const s = sleeves.get(canvas);
+    if (!s) return;
+    s.visible = entry.isIntersecting;
+    if (s.visible && !loop) loop = requestAnimationFrame(tick);
+  });
+  io.observe(canvas);
+  return () => { io.disconnect(); sleeves.delete(canvas); };
 }
