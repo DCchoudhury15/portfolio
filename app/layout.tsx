@@ -7,6 +7,8 @@ const body = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], varia
 const ui = Hanken_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-ui", display: "swap" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://divyanshuchoudhury.vercel.app"),
+  alternates: { canonical: "/" },
   title: "Divyanshu Choudhury · Systems & DevOps engineer",
   description:
     "Systems and DevOps engineer and open-source contributor from Jabalpur. Linux, containers, Kubernetes, CI/CD and observability.",
@@ -14,6 +16,7 @@ export const metadata: Metadata = {
     title: "Divyanshu Choudhury · Systems & DevOps engineer",
     description: "Computer science student and open-source contributor, interested in DevOps, distributed systems and backend infrastructure.",
     type: "website",
+    url: "/",
   },
 };
 
