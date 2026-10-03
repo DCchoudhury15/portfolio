@@ -9,6 +9,7 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
   x: "https://x.com/Divyanscpu15",
   instagram: "https://www.instagram.com/ch.divyanshu/",
+  spotify: "https://open.spotify.com/user/31xuzvnbhcvlh6ratn7t4dbb6yka",
   discord: "dj_choudhury",
   codolio: "https://codolio.com/profile/HSTFfsyv",
 };
