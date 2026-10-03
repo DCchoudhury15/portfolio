@@ -35,6 +35,8 @@ a { color: inherit; }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 64px; }
 .mono { font: 400 22px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
 .mono span { color: var(--gold); }
+.menu-btn { display: none; }
+.swipe { display: none; }
 .nav ul { display: flex; gap: 28px; list-style: none; margin: 0; padding: 0; font: 500 14px/1 var(--ui); letter-spacing: .02em; }
 .nav ul a { text-decoration: none; color: var(--muted); transition: color .2s; }
 .nav ul a:hover { color: var(--text); }
@@ -123,7 +125,6 @@ section.block { padding-block: 120px 0; }
 /* ---------- Liner notes ---------- */
 .notes { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 64px; align-items: start; }
 .notes .prose p { margin: 0 0 18px; color: #d4cbbd; max-width: 36em; }
-.notes .prose p:first-child::first-letter { font: 400 4.2em/.8 var(--display); float: left; margin: 6px 12px 0 0; color: var(--gold); }
 .ledger { display: grid; gap: 0; margin: 0; }
 .ledger div { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .ledger dt { font: 500 14px/1.5 var(--ui); color: var(--muted); }
@@ -156,7 +157,15 @@ section.block { padding-block: 120px 0; }
 
 @media (max-width: 900px) {
   .repeat { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  /* Phone menu: a button that opens the links as a full-screen list. */
+  .menu-btn { display: inline-flex; appearance: none; cursor: pointer; border: 1px solid rgba(236,228,214,.25); background: rgba(11,10,13,.35); color: var(--text); border-radius: 999px; padding: 9px 16px; font: 600 13px/1 var(--ui); letter-spacing: .04em; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   .nav ul { display: none; }
+  .nav.open { bottom: 0; background: rgba(11,10,13,.985); }
+  .nav.open .wrap { height: 64px; }
+  .nav.open ul { display: grid; gap: 6px; position: absolute; left: 0; right: 0; top: calc(64px + env(safe-area-inset-top, 0px)); padding: 32px 24px; }
+  .nav.open ul a { display: block; padding: 10px 0; font: 400 44px/1.1 var(--display); color: var(--text); }
+  .nav.open ul a:hover { color: var(--gold); }
+  :root.menu-open, :root.menu-open body { overflow: hidden; }
   .head, .record, .record:nth-child(even), .gsoc, .notes { grid-template-columns: minmax(0, 1fr); }
   .record:nth-child(even) .sleeve { order: 0; }
   .record { padding: 18px; gap: 26px; }
@@ -164,5 +173,39 @@ section.block { padding-block: 120px 0; }
   .sessions, .rig { grid-template-columns: minmax(0, 1fr); }
   section.block { padding-block: 88px 0; }
 }
-@media (max-width: 520px) { .repeat { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  .wrap { padding-inline: 20px; }
+  section.block { padding-block: 72px 0; }
+  .head { margin-bottom: 32px; }
+  .hero { min-height: 100svh; }
+  .hero .wrap { padding-block: 120px 48px; gap: 22px; }
+  .hero .lede { font-size: 18px; }
+  .cta .btn { flex: 1 1 auto; justify-content: center; }
+
+  /* Projects: a wide cover instead of a tall square, tighter card. */
+  .record { padding: 14px; gap: 18px; border-radius: 18px; }
+  .sleeve { aspect-ratio: 16 / 10; }
+  .record .hook { font-size: 19px; }
+  .record .desc { font-size: 16px; }
+
+  .gsoc { padding: 22px 20px; }
+
+  /* Open source and On repeat become rows you swipe sideways. */
+  .swipe { display: block; font: 500 12px/1 var(--ui); letter-spacing: .06em; color: var(--muted); }
+  .sessions, .repeat { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 14px; margin-inline: -20px; padding: 4px 20px 14px; scroll-padding-inline: 20px; scrollbar-width: none; overscroll-behavior-x: contain; }
+  .sessions::-webkit-scrollbar, .repeat::-webkit-scrollbar { display: none; }
+  .session { flex: 0 0 84%; scroll-snap-align: start; }
+  .repeat li { flex: 0 0 44%; scroll-snap-align: start; }
+  .sessions-title { margin: 56px 0 18px; }
+
+  .rig > div { padding: 20px 0; }
+  .rig p { font-size: 21px; }
+  .notes { gap: 36px; }
+  .ledger div { grid-template-columns: 7.5em minmax(0, 1fr); }
+
+  .contact { padding-block: 96px 32px; }
+  .mail { flex-direction: column; border-radius: 22px; padding: 18px; width: 100%; }
+  .mail .btn { width: 100%; justify-content: center; }
+}
 @media (min-width: 901px) and (max-width: 1100px) { .sessions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

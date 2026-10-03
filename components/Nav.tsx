@@ -12,6 +12,8 @@ const LINKS = [
 
 export default function Nav() {
   const [solid, setSolid] = useState(false);
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     const onScroll = () => setSolid(window.scrollY > 40);
     onScroll();
@@ -19,12 +21,31 @@ export default function Nav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // On phones the links live in a full-screen menu; close it with Escape and keep the page still behind it.
+  useEffect(() => {
+    document.documentElement.classList.toggle("menu-open", open);
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
-    <nav className={`nav${solid ? " solid" : ""}`} aria-label="Main">
+    <nav className={`nav${solid || open ? " solid" : ""}${open ? " open" : ""}`} aria-label="Main">
       <div className="wrap">
-        <a className="mono" href="#top">D<span>·</span>C</a>
-        <ul>
-          {LINKS.map((l) => <li key={l.href}><a href={l.href}>{l.label}</a></li>)}
+        <a className="mono" href="#top" onClick={() => setOpen(false)}>D<span>·</span>C</a>
+        <button
+          className="menu-btn"
+          type="button"
+          aria-expanded={open}
+          aria-controls="site-menu"
+          onClick={() => setOpen((o) => !o)}
+        >
+          {open ? "Close" : "Menu"}
+        </button>
+        <ul id="site-menu">
+          {LINKS.map((l) => (
+            <li key={l.href}><a href={l.href} onClick={() => setOpen(false)}>{l.label}</a></li>
+          ))}
         </ul>
       </div>
     </nav>

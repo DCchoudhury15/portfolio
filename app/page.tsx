@@ -89,6 +89,7 @@ export default function Home() {
           <div className="sessions-title">
             <h3>Session work · merged upstream</h3>
             <a href="https://github.com/pulls?q=is%3Apr+author%3ADCchoudhury15+is%3Amerged+-user%3ADCchoudhury15" {...ext}>All 38 merged PRs on GitHub ↗</a>
+            <span className="swipe" aria-hidden="true">Swipe →</span>
           </div>
           <div className="sessions">
             {sessions.map((s) => (
@@ -137,6 +138,7 @@ export default function Home() {
           </div>
           <div className="onrepeat">
             <span className="side">On repeat this month</span>
+            <span className="swipe" aria-hidden="true">Swipe →</span>
             <OnRepeat />
           </div>
         </section>
