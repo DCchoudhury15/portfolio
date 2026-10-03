@@ -17,6 +17,8 @@ export default function Home() {
       <header className="hero" id="top">
         <HeroLightShow />
         <div className="wrap">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={400} height={400} />
           <div className="kicker ui">
             <b>{profile.role}</b>
             <span>{profile.location}</span>
@@ -41,8 +43,6 @@ export default function Home() {
         <section className="block wrap" id="about" aria-labelledby="about-h">
           <div className="head">
             <div><span className="side">Liner notes</span><h2 id="about-h">About me</h2></div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className="about-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={400} height={400} />
           </div>
           <div className="notes">
             <div className="prose">{about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
