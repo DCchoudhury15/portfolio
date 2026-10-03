@@ -24,9 +24,9 @@ export default function Home() {
             <em>Choudhury</em>
           </h1>
           <p className="lede">
-            I love the layer most people never see: Linux, containers, Kubernetes, CI/CD pipelines and the
-            telemetry that tells you what is really going on. I&apos;m an open-source contributor, and a slow
-            build, a flaky deploy or a mystery in the logs is my favourite kind of problem.
+            I&apos;m a computer science student and open-source contributor. I work with Linux, Docker,
+            Kubernetes, CI/CD and observability tools, and I&apos;m interested in DevOps, distributed systems and
+            backend infrastructure.
           </p>
           <div className="cta">
             <a className="btn primary" href="#work">See the work</a>

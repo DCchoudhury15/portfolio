@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Systems and DevOps engineer and open-source contributor from Jabalpur. Linux, containers, Kubernetes, CI/CD and observability.",
   openGraph: {
     title: "Divyanshu Choudhury · Systems & DevOps engineer",
-    description: "I love the layer most people never see: Linux, containers, Kubernetes, CI/CD and observability.",
+    description: "Computer science student and open-source contributor, interested in DevOps, distributed systems and backend infrastructure.",
     type: "website",
   },
 };
