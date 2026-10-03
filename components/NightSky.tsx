@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import sky from "@/lib/sky.json";
 
 /**
@@ -9,6 +9,7 @@ import sky from "@/lib/sky.json";
  *
  * The scene is rendered once into a canvas larger than the screen. Scrolling tilts the view from
  * high overhead down to the horizon, and the pointer (or tilting a phone) moves it slightly.
+ * Hovering a star makes it swell and sparkle.
  */
 
 type Body = { name: string; az: number; alt: number; mag: number };
@@ -72,37 +73,16 @@ function starColour(bv: number): [number, number, number] {
 }
 
 // Atmosphere: stars fade and redden as they sink towards the horizon.
+// True when the pointer is over open sky rather than over text, cards or the hero.
+const OPEN_TAGS = new Set(["HTML", "BODY", "MAIN"]);
+const OPEN_CLASSES = ["block", "contact", "wrap", "head", "records", "sessions", "rig", "notes", "onrepeat", "sky-note"];
+const overOpenSky = (el: Element | null) =>
+  !!el && !el.closest(".hero, .nav") && (OPEN_TAGS.has(el.tagName) || OPEN_CLASSES.some((c) => el.classList.contains(c)));
+
 const extinction = (alt: number) => Math.pow(10, -0.4 * 0.25 * (1 / Math.max(Math.sin(Math.max(alt, 0.5) * D), 0.05) - 1));
 
 export default function NightSky() {
   const ref = useRef<HTMLCanvasElement>(null);
-  const [tip, setTip] = useState<{ x: number; y: number } | null>(null);
-
-  // A small label follows the pointer whenever it rests on open sky rather than on content.
-  useEffect(() => {
-    const OPEN = new Set(["HTML", "BODY", "MAIN"]);
-    const CONTAINERS = ["block", "contact", "wrap", "head", "records", "sessions", "rig", "notes", "onrepeat", "sky-note"];
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const onMove = (e: PointerEvent) => {
-      if (e.pointerType === "touch") return;
-      const el = e.target as HTMLElement | null;
-      const open = !!el && !el.closest(".hero, .nav") &&
-        (OPEN.has(el.tagName) || CONTAINERS.some((c) => el.classList?.contains(c)));
-      clearTimeout(timer);
-      if (open) timer = setTimeout(() => setTip({ x: e.clientX, y: e.clientY }), 250);
-      else setTip(null);
-    };
-    const onLeave = () => { clearTimeout(timer); setTip(null); };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    document.addEventListener("pointerleave", onLeave);
-    window.addEventListener("scroll", onLeave, { passive: true });
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("scroll", onLeave);
-    };
-  }, []);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -118,6 +98,17 @@ export default function NightSky() {
 
     let w = 0, h = 0, W = 0, H = 0, dpr = 1, s = 1, ox = 0, oy = 0;
     let twinklers: { x: number; y: number; r: number; c: string; a: number; f: number; p: number; amp: number }[] = [];
+    // Every visible star, bucketed into a coarse grid so hover lookups stay cheap.
+    type Pt = { x: number; y: number; r: number; c: string; a: number; p: number };
+    let pts: Pt[] = [];
+    let grid = new Map<string, number[]>();
+    const CELL = 40;
+    const addPt = (pt: Pt) => {
+      const k = `${Math.floor(pt.x / CELL)},${Math.floor(pt.y / CELL)}`;
+      const list = grid.get(k);
+      if (list) list.push(pts.length); else grid.set(k, [pts.length]);
+      pts.push(pt);
+    };
 
     const project = (az: number, alt: number): [number, number] | null => {
       const v = dir(az, alt);
@@ -208,6 +199,8 @@ export default function NightSky() {
 
       // The catalogue stars, with a soft glow around the bright ones.
       twinklers = [];
+      pts = [];
+      grid = new Map();
       for (const [az, alt, mag, bv] of sky.stars as [number, number, number, number][]) {
         if (alt < hills(az)) continue;
         const p = project(az, alt);
@@ -224,6 +217,7 @@ export default function NightSky() {
           halo.addColorStop(1, `rgba(${c},0)`);
           g.fillStyle = halo; g.beginPath(); g.arc(p[0], p[1], r * 7, 0, Math.PI * 2); g.fill();
         }
+        addPt({ x: p[0], y: p[1], r, c, a, p: Math.random() * 6.28 });
         if (mag < 3.4 && !reduced) {
           twinklers.push({ x: p[0], y: p[1], r, c, a, f: 0.5 + Math.random() * 1.6, p: Math.random() * 6.28, amp: 0.12 + 0.35 * (1 - Math.sin(Math.max(alt, 1) * D)) });
         } else {
@@ -242,6 +236,7 @@ export default function NightSky() {
         halo.addColorStop(0, "rgba(255,240,214,0.35)"); halo.addColorStop(1, "rgba(255,240,214,0)");
         g.fillStyle = halo; g.beginPath(); g.arc(p[0], p[1], r * 9, 0, Math.PI * 2); g.fill();
         g.fillStyle = "rgba(255,246,228,0.98)"; g.beginPath(); g.arc(p[0], p[1], r, 0, Math.PI * 2); g.fill();
+        addPt({ x: p[0], y: p[1], r, c: "255,246,228", a: 0.98, p: 0 });
       }
 
       // Low hills in silhouette, with the faint orange glow of a town behind them.
@@ -272,7 +267,42 @@ export default function NightSky() {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       scroll = max > 0 ? Math.min(1, window.scrollY / max) : 0;
     };
-    const onPointer = (e: PointerEvent) => { tx = (e.clientX / w - 0.5) * 2; ty = (e.clientY / h - 0.5) * 2; };
+    // Hover: find the star nearest the pointer, favouring brighter ones.
+    let hover = -1;
+    const hot = new Map<number, number>(); // star index -> how lit up it is, 0..1
+    const onPointer = (e: PointerEvent) => {
+      tx = (e.clientX / w - 0.5) * 2; ty = (e.clientY / h - 0.5) * 2;
+      hover = -1;
+      if (e.pointerType === "touch" || !overOpenSky(e.target as Element) || isNaN(lastX)) return;
+      const sx = e.clientX + lastX, sy = e.clientY + lastY;
+      const gx = Math.floor(sx / CELL), gy = Math.floor(sy / CELL);
+      let best = 22;
+      for (let i = gx - 1; i <= gx + 1; i++) for (let j = gy - 1; j <= gy + 1; j++) {
+        for (const n of grid.get(`${i},${j}`) ?? []) {
+          const d = Math.hypot(pts[n].x - sx, pts[n].y - sy) - pts[n].r * 2.5;
+          if (d < best) { best = d; hover = n; }
+        }
+      }
+    };
+    const drawHot = (st: Pt, e: number, t: number, offX: number, offY: number) => {
+      const x = st.x - offX, y = st.y - offY;
+      const tw = 0.65 + 0.35 * Math.sin(t * 9 + st.p) * Math.sin(t * 5.3 + st.p * 2);
+      const r = st.r * (1 + 2.4 * e);
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r * 6);
+      glow.addColorStop(0, `rgba(${st.c},${0.45 * e * tw})`);
+      glow.addColorStop(1, `rgba(${st.c},0)`);
+      ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, r * 6, 0, Math.PI * 2); ctx.fill();
+      // Four soft spikes, like a star seen through a lens.
+      const len = r * (5 + 4 * tw) * e;
+      for (const [dx, dy] of [[1, 0], [0, 1]]) {
+        const spike = ctx.createLinearGradient(x - dx * len, y - dy * len, x + dx * len, y + dy * len);
+        spike.addColorStop(0, `rgba(${st.c},0)`); spike.addColorStop(0.5, `rgba(${st.c},${0.7 * e * tw})`); spike.addColorStop(1, `rgba(${st.c},0)`);
+        ctx.strokeStyle = spike; ctx.lineWidth = Math.max(1, r * 0.35);
+        ctx.beginPath(); ctx.moveTo(x - dx * len, y - dy * len); ctx.lineTo(x + dx * len, y + dy * len); ctx.stroke();
+      }
+      ctx.fillStyle = `rgba(${st.c},${Math.min(1, st.a + 0.5 * e) * (0.75 + 0.25 * tw)})`;
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill();
+    };
     const onTilt = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
       tx = Math.max(-1, Math.min(1, e.gamma / 30));
@@ -288,10 +318,13 @@ export default function NightSky() {
     const frame = (ms: number) => {
       const rg = range();
       cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
-      const offX = rg.x + cx * rg.x * 0.55;
+      // Keep the drift small so a star does not slide away from the pointer reaching for it.
+      const offX = rg.x + cx * Math.min(20, rg.x);
       const offY = scroll * rg.y + cy * Math.min(30, rg.y * 0.05);
       const moved = Math.abs(offX - lastX) > 0.1 || Math.abs(offY - lastY) > 0.1;
-      if (moved || ms - last > 60) {
+      if (hover >= 0) hot.set(hover, (hot.get(hover) ?? 0) + (1 - (hot.get(hover) ?? 0)) * 0.18);
+      hot.forEach((e, n) => { if (n !== hover) { e *= 0.9; if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
+      if (moved || hot.size > 0 || ms - last > 60) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(scene, Math.round(offX * dpr), Math.round(offY * dpr), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -303,6 +336,7 @@ export default function NightSky() {
           ctx.fillStyle = `rgba(${st.c},${st.a * tw})`;
           ctx.beginPath(); ctx.arc(x, y, st.r, 0, Math.PI * 2); ctx.fill();
         }
+        hot.forEach((e, n) => drawHot(pts[n], e, t, offX, offY));
         last = ms; lastX = offX; lastY = offY;
       }
       raf = requestAnimationFrame(frame);
@@ -328,7 +362,7 @@ export default function NightSky() {
       window.addEventListener("pointerdown", askTilt, { once: true });
     }
     let timer: ReturnType<typeof setTimeout>;
-    const onResize = () => { clearTimeout(timer); timer = setTimeout(() => { render(); readScroll(); lastX = NaN; if (reduced) still(); }, 200); };
+    const onResize = () => { clearTimeout(timer); timer = setTimeout(() => { hot.clear(); hover = -1; render(); readScroll(); lastX = NaN; if (reduced) still(); }, 200); };
     window.addEventListener("resize", onResize);
 
     return () => {
@@ -341,13 +375,5 @@ export default function NightSky() {
     };
   }, []);
 
-  return (
-    <>
-      <canvas ref={ref} className="night-sky" aria-hidden="true" />
-      <div className={`sky-tip${tip ? " on" : ""}`} style={tip ? { left: tip.x, top: tip.y } : undefined} aria-hidden="true">
-        <b>The sky the night I was born</b>
-        <span>Jabalpur, India · every star where it really was</span>
-      </div>
-    </>
-  );
+  return <canvas ref={ref} className="night-sky" aria-hidden="true" />;
 }
