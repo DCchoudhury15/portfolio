@@ -94,6 +94,9 @@ export default function Home() {
               <div className="role ui">{gsoc.role}</div>
               <h3>{gsoc.org}</h3>
               <p>{gsoc.summary}</p>
+              <div className="links gsoc-links">
+                {gsoc.links.map((l) => <a key={l.href} href={l.href} {...ext}>{l.label} ↗</a>)}
+              </div>
             </div>
             <ol>
               {gsoc.milestones.map((m) => (

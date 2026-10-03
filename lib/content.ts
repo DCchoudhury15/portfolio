@@ -82,6 +82,10 @@ export const gsoc = {
   org: "INCF / EBRAINS",
   summary:
     "EBRAINS is a European research infrastructure for brain science. Its software distribution is built with Spack. My project carves smaller, reusable subsets out of it and makes them build against EESSI's prebuilt scientific software stack instead of compiling everything from scratch.",
+  links: [
+    { label: "GSoC project page", href: "https://summerofcode.withgoogle.com/programs/2026/projects/XV3TCMEB" },
+    { label: "My work on EBRAINS GitLab", href: "https://gitlab.ebrains.eu/divyanshu15" },
+  ],
   milestones: [
     { title: "Subset generator", detail: "Generates a self-contained Spack environment from any slice of the distribution." },
     { title: "Reusing what's already built", detail: "Pins a subset's dependencies to existing build hashes so packages are reused, not rebuilt." },
