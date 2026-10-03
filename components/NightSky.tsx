@@ -314,7 +314,7 @@ export default function NightSky() {
       if (typeof DOE?.requestPermission === "function") DOE.requestPermission().catch(() => {});
     };
 
-    let last = 0, raf = 0, lastX = NaN, lastY = NaN;
+    let last = 0, raf = 0, lastX = NaN, lastY = NaN, lastFrame = 0;
     const frame = (ms: number) => {
       const rg = range();
       cx += (tx - cx) * 0.06; cy += (ty - cy) * 0.06;
@@ -322,8 +322,11 @@ export default function NightSky() {
       const offX = rg.x + cx * Math.min(20, rg.x);
       const offY = scroll * rg.y + cy * Math.min(30, rg.y * 0.05);
       const moved = Math.abs(offX - lastX) > 0.1 || Math.abs(offY - lastY) > 0.1;
-      if (hover >= 0) hot.set(hover, (hot.get(hover) ?? 0) + (1 - (hot.get(hover) ?? 0)) * 0.18);
-      hot.forEach((e, n) => { if (n !== hover) { e *= 0.9; if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
+      // Grow and fade by elapsed time, so it feels the same at any frame rate.
+      const dt = Math.min(100, ms - (lastFrame || ms)) / 16.7;
+      lastFrame = ms;
+      if (hover >= 0) { const e = hot.get(hover) ?? 0; hot.set(hover, e + (1 - e) * (1 - Math.pow(0.82, dt))); }
+      hot.forEach((e, n) => { if (n !== hover) { e *= Math.pow(0.9, dt); if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
       if (moved || hot.size > 0 || ms - last > 60) {
         ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.drawImage(scene, Math.round(offX * dpr), Math.round(offY * dpr), canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
