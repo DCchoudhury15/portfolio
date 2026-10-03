@@ -4,7 +4,7 @@ import HeroLightShow from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
 import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
-import CopyDiscord from "@/components/CopyDiscord";
+import Socials from "@/components/Socials";
 import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
 
 const ext = { target: "_blank", rel: "noopener" } as const;
@@ -150,13 +150,7 @@ export default function Home() {
           <h2 id="contact-h">Let&apos;s work <em>together</em></h2>
           <p>Internships, open-source collaboration, or a good systems problem. My inbox is open.</p>
           <CopyEmail email={profile.email} />
-          <div className="socials">
-            <a href={profile.github} {...ext}>GitHub</a>
-            <a href={profile.linkedin} {...ext}>LinkedIn</a>
-            <a href={profile.x} {...ext}>X · {profile.xHandle}</a>
-            <a href={profile.instagram} {...ext}>Instagram · {profile.instagramHandle}</a>
-            <CopyDiscord username={profile.discord} />
-          </div>
+          <Socials />
         </section>
 
         <section className="listening wrap" id="listening" aria-labelledby="listening-h">

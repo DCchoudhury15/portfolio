@@ -8,9 +8,7 @@ export const profile = {
   github: "https://github.com/DCchoudhury15",
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
   x: "https://x.com/Divyanscpu15",
-  xHandle: "@Divyanscpu15",
   instagram: "https://www.instagram.com/ch.divyanshu/",
-  instagramHandle: "@ch.divyanshu",
   discord: "dj_choudhury",
   codolio: "https://codolio.com/profile/HSTFfsyv",
 };
