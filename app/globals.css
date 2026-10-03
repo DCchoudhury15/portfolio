@@ -174,22 +174,36 @@ section.block { padding-block: 120px 0; }
   section.block { padding-block: 88px 0; }
 }
 @media (max-width: 600px) {
-  body { font-size: 17px; }
+  /* Body text in the clean sans on phones; the serif stays for headings and accents. */
+  body { font-family: var(--ui); font-size: 16px; line-height: 1.65; }
+  p { text-wrap: pretty; }
+  .hero .lede, .head p, .record .desc, .gsoc p, .gsoc li span, .notes .prose p, .contact p, .also { font-family: var(--ui); }
+
+  /* One left edge for everything: cards lose their boxes on phones. */
+  .record, .record:hover { background: none; border: 0; padding: 0; border-radius: 0; }
+  .records { gap: 56px; }
+  .record .info { gap: 12px; }
+  .record .desc { font-size: 15.5px; }
+  .gsoc { background: none; border: 0; padding: 0 !important; border-radius: 0; }
+  .gsoc li { grid-template-columns: 2.2em minmax(0, 1fr); }
+  .ledger div { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 14px 0; }
+  .ledger dt { font-size: 13px; letter-spacing: .02em; }
+  .cta { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .cta .btn { justify-content: center; padding: 15px 10px; }
+  .head p { font-size: 16px; }
+  .notes .prose p { font-size: 16px; }
+  .session li a { font-size: 15px; }
+
   .wrap { padding-inline: 20px; }
   section.block { padding-block: 72px 0; }
   .head { margin-bottom: 32px; }
   .hero { min-height: 100svh; }
   .hero .wrap { padding-block: 120px 48px; gap: 22px; }
-  .hero .lede { font-size: 18px; }
-  .cta .btn { flex: 1 1 auto; justify-content: center; }
+  .hero .lede { font-size: 17px; }
 
-  /* Projects: a wide cover instead of a tall square, tighter card. */
-  .record { padding: 14px; gap: 18px; border-radius: 18px; }
+  /* Projects: a wide cover instead of a tall square. */
   .sleeve { aspect-ratio: 16 / 10; }
   .record .hook { font-size: 19px; }
-  .record .desc { font-size: 16px; }
-
-  .gsoc { padding: 22px 20px; }
 
   /* Open source and On repeat become rows you swipe sideways. */
   .swipe { display: block; font: 500 12px/1 var(--ui); letter-spacing: .06em; color: var(--muted); }
@@ -202,7 +216,6 @@ section.block { padding-block: 120px 0; }
   .rig > div { padding: 20px 0; }
   .rig p { font-size: 21px; }
   .notes { gap: 36px; }
-  .ledger div { grid-template-columns: 7.5em minmax(0, 1fr); }
 
   .contact { padding-block: 96px 32px; }
   .mail { flex-direction: column; border-radius: 22px; padding: 18px; width: 100%; }

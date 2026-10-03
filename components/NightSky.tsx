@@ -246,10 +246,14 @@ export default function NightSky() {
         if (p) ridge.push(p);
       }
       if (ridge.length > 2) {
-        const top = Math.min(...ridge.map((q) => q[1]));
-        const glow = g.createLinearGradient(0, top - H * 0.08, 0, top + 10);
+        // Only the part of the ridge actually on screen decides where the glow sits; the glow
+        // runs down behind the hills so it never ends in a hard edge.
+        const onScreen = ridge.filter(([x]) => x >= 0 && x <= W).map((q) => q[1]);
+        const top = onScreen.length ? Math.min(...onScreen) : H;
+        const glowTop = top - Math.min(H * 0.08, 90);
+        const glow = g.createLinearGradient(0, glowTop, 0, top + 40);
         glow.addColorStop(0, "rgba(255,150,80,0)"); glow.addColorStop(1, "rgba(255,150,80,0.06)");
-        g.fillStyle = glow; g.fillRect(0, top - H * 0.08, W, H * 0.08 + 10);
+        g.fillStyle = glow; g.fillRect(0, glowTop, W, H - glowTop);
         g.fillStyle = "#050507";
         g.beginPath();
         g.moveTo(ridge[0][0], H + 10);
