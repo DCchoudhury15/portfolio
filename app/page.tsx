@@ -38,6 +38,27 @@ export default function Home() {
       </header>
 
       <main>
+        <section className="block wrap" id="about" aria-labelledby="about-h">
+          <div className="head">
+            <div><span className="side">Liner notes</span><h2 id="about-h">About me</h2></div>
+          </div>
+          <div className="notes">
+            <div className="prose">{about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
+            <dl className="ledger">
+              <div><dt>Studying</dt><dd>B.Tech, Computer Science · Gyan Ganga Institute of Technology and Sciences · 2023 to 2027</dd></div>
+              <div><dt>CGPA</dt><dd><b>8.0</b></dd></div>
+              <div><dt>DSA</dt><dd><b>1736</b> LeetCode contest rating · 555+ problems · 35 rated contests · <a className="soft" href={profile.codolio} {...ext}>all stats on Codolio ↗</a></dd></div>
+              <div><dt>Longest streak</dt><dd><b>213</b> days</dd></div>
+              <div><dt>Based in</dt><dd>{profile.location}</dd></div>
+            </dl>
+          </div>
+          <div className="onrepeat">
+            <span className="side">On repeat this month</span>
+            <span className="swipe" aria-hidden="true">Swipe →</span>
+            <OnRepeat />
+          </div>
+        </section>
+
         <section className="block wrap" id="work" aria-labelledby="work-h">
           <div className="head">
             <div><span className="side">Side A</span><h2 id="work-h">Things I built</h2></div>
@@ -122,26 +143,6 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="block wrap" id="about" aria-labelledby="about-h">
-          <div className="head">
-            <div><span className="side">Liner notes</span><h2 id="about-h">About me</h2></div>
-          </div>
-          <div className="notes">
-            <div className="prose">{about.map((p) => <p key={p.slice(0, 24)}>{p}</p>)}</div>
-            <dl className="ledger">
-              <div><dt>Studying</dt><dd>B.Tech, Computer Science · Gyan Ganga Institute of Technology and Sciences · 2023 to 2027</dd></div>
-              <div><dt>CGPA</dt><dd><b>8.0</b></dd></div>
-              <div><dt>DSA</dt><dd><b>1736</b> LeetCode contest rating · 555+ problems · 35 rated contests · <a className="soft" href={profile.codolio} {...ext}>all stats on Codolio ↗</a></dd></div>
-              <div><dt>Longest streak</dt><dd><b>213</b> days</dd></div>
-              <div><dt>Based in</dt><dd>{profile.location}</dd></div>
-            </dl>
-          </div>
-          <div className="onrepeat">
-            <span className="side">On repeat this month</span>
-            <span className="swipe" aria-hidden="true">Swipe →</span>
-            <OnRepeat />
-          </div>
-        </section>
 
         <section className="contact wrap" id="contact" aria-labelledby="contact-h">
           <span className="side">Encore</span>

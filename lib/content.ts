@@ -156,10 +156,10 @@ export const rig = [
 ];
 
 export const about = [
-  "I'm a computer science student in Jabalpur who likes the unglamorous layer of software: the exporters, package resolvers, build systems and policy engines that everything else quietly depends on.",
-  "Most of what I know I learned by reading other people's code and sending fixes upstream. That habit took me into CPython, OpenTelemetry, Jaeger and conda, and then into Google Summer of Code, where I spent the summer making a neuroscience platform's software build faster and reuse more.",
-  "When I'm not doing that, I'm usually solving contest problems or building something I wanted to exist, like AgentWard.",
-];
+  "I'm a final-year computer science student at Gyan Ganga Institute of Technology and Sciences in Jabalpur. Most of my time outside classes goes into open source, and I've had pull requests merged into CPython, OpenTelemetry, Jaeger, conda and a few other projects.",
+  "This year I took part in Google Summer of Code with INCF, working on the build setup for the EBRAINS software distribution. A lot of it was getting Spack and EESSI to work together, which taught me a lot about compilers, MPI and CI pipelines.",
+  "I'm most interested in DevOps, distributed systems and backend infrastructure. When I'm not working on those, I'm usually doing competitive programming or building side projects like AgentWard.",
+]
 
 export type Track = { title: string; artist: string; album: string; url: string; art: string | null };
 
