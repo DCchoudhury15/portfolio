@@ -50,7 +50,7 @@ a { color: inherit; }
 .kicker b { color: var(--gold); font-weight: 600; }
 .hero .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 56px; }
 .hero .wrap > * { grid-column: 1; }
-.hero .hero-photo { grid-column: 2; grid-row: 1 / span 4; align-self: end; width: clamp(180px, 22vw, 300px); height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 28px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.08); }
+.hero .hero-photo { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-top: 10px; width: clamp(180px, 22vw, 300px); height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 28px; box-shadow: 0 40px 80px -30px rgba(0,0,0,.9), 0 0 0 1px rgba(255,255,255,.08); }
 .hero h1 { margin: 0; font: 400 clamp(58px, 11.5vw, 168px)/.9 var(--display); letter-spacing: -.02em; text-wrap: balance; }
 .hero h1 em { font-style: normal; color: var(--gold); }
 .hero .lede { margin: 0; max-width: 34em; font-size: clamp(19px, 2vw, 23px); line-height: 1.5; color: #d9d0c2; }
@@ -208,8 +208,11 @@ section.block { padding-block: 120px 0; }
   .hero { min-height: 100svh; }
   .hero .wrap { padding-block: 120px 48px; gap: 22px; }
   .hero .lede { font-size: 17px; }
-  .hero .wrap { grid-template-columns: minmax(0, 1fr); }
-  .hero .hero-photo { grid-column: 1; grid-row: auto; width: 116px; border-radius: 20px; align-self: start; }
+  /* Phones: photo top right with the role line beside it; name and text full width below. */
+  .hero .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; }
+  .hero .wrap > * { grid-column: 1 / -1; }
+  .hero .kicker { grid-column: 1; grid-row: 1; align-self: end; flex-direction: column; gap: 4px; }
+  .hero .hero-photo { grid-column: 2; grid-row: 1; width: 104px; border-radius: 20px; align-self: start; margin-top: 0; }
 
   /* Projects: a small square cover beside the title, like a track in a music app,
      with the description and links running full width underneath. */
