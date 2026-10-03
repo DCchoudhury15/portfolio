@@ -6,6 +6,9 @@ is the tour.
 - **Light show.** The hero and every album sleeve are painted live by a WebGL shader in the style of
   1960s oil-projector light shows.
 - **On repeat.** The About section lists my top 5 Spotify tracks of the last ~4 weeks, refreshed hourly.
+- **Night sky.** The page background is the real sky over Jabalpur at 9 pm on the night I was born:
+  every naked-eye star in its true position and colour, the constellation figures, the Moon at its real
+  phase, and Jupiter and Saturn. `scripts/build-sky.mjs` computes it once into `lib/sky.json`.
 
 Built with Next.js, React and TypeScript. No UI framework, no tracking.
 
@@ -43,7 +46,14 @@ app/globals.css           all styles
 app/api/top-tracks/       Spotify top tracks endpoint
 lib/content.ts            every piece of text on the site
 lib/lightshow.ts          WebGL light-show shader
+lib/sky.json              precomputed birth-night sky (scripts/build-sky.mjs)
 components/               nav, hero, sleeves, on-repeat list
 ```
 
 To update the site's text, edit `lib/content.ts`.
+
+## Credits
+
+Star positions, colours and constellation lines: [d3-celestial](https://github.com/ofrohn/d3-celestial)
+data, Copyright (c) 2015 Olaf Frohn, BSD 3-Clause licence. Moon and planet positions:
+[astronomy-engine](https://github.com/cosinekitty/astronomy) (MIT).

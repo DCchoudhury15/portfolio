@@ -1,4 +1,5 @@
 import Nav from "@/components/Nav";
+import NightSky from "@/components/NightSky";
 import HeroLightShow from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
 import OnRepeat from "@/components/OnRepeat";
@@ -10,6 +11,7 @@ const ext = { target: "_blank", rel: "noopener" } as const;
 export default function Home() {
   return (
     <>
+      <NightSky />
       <Nav />
 
       <header className="hero" id="top">
@@ -147,6 +149,10 @@ export default function Home() {
             <a href={profile.x} {...ext}>X · {profile.xHandle}</a>
           </div>
         </section>
+
+        <p className="sky-note wrap">
+          The stars behind this page are the real sky over Jabalpur on the night I was born.
+        </p>
       </main>
     </>
   );
