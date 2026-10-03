@@ -18,24 +18,19 @@ export default function Home() {
           <div className="kicker ui">
             <b>{profile.role}</b>
             <span>{profile.location}</span>
-            <span>Google Summer of Code 2026</span>
           </div>
           <h1>
             Divyanshu<br />
             <em>Choudhury</em>
           </h1>
           <p className="lede">
-            I build the plumbing other engineers stand on: guardrails that stop AI agents leaking data, telemetry
-            pipelines, package managers, and build tooling for a European neuroscience platform.
+            I love the layer most people never see: Linux, containers, Kubernetes, CI/CD pipelines and the
+            telemetry that tells you what is really going on. I&apos;m an open-source contributor, and a slow
+            build, a flaky deploy or a mystery in the logs is my favourite kind of problem.
           </p>
           <div className="cta">
             <a className="btn primary" href="#work">See the work</a>
             <a className="btn ghost" href="#contact">Get in touch</a>
-          </div>
-          <div className="facts">
-            <div><b>GSoC 2026</b>INCF / EBRAINS</div>
-            <div><b>CPython · OTel · Jaeger</b>code merged upstream</div>
-            <div><b>1736</b>LeetCode contest rating</div>
           </div>
         </div>
       </header>
@@ -133,7 +128,7 @@ export default function Home() {
             <dl className="ledger">
               <div><dt>Studying</dt><dd>B.Tech, Computer Science · Gyan Ganga Institute of Technology and Sciences · 2023 to 2027</dd></div>
               <div><dt>CGPA</dt><dd><b>8.0</b></dd></div>
-              <div><dt>LeetCode</dt><dd><b>1736</b> contest rating · 555+ problems · 35 rated contests</dd></div>
+              <div><dt>DSA</dt><dd><b>1736</b> LeetCode contest rating · 555+ problems · 35 rated contests · <a className="soft" href={profile.codolio} {...ext}>all stats on Codolio ↗</a></dd></div>
               <div><dt>Longest streak</dt><dd><b>213</b> days</dd></div>
               <div><dt>Based in</dt><dd>{profile.location}</dd></div>
               <div><dt>On repeat this month</dt><dd><OnRepeat /></dd></div>

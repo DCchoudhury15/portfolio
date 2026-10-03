@@ -2,13 +2,14 @@
 
 export const profile = {
   name: "Divyanshu Choudhury",
-  role: "Systems engineer",
+  role: "Systems & DevOps engineer",
   location: "Jabalpur, India",
   email: "divyanshuchoudhury51@gmail.com",
   github: "https://github.com/DCchoudhury15",
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
   x: "https://x.com/Divyanscpu15",
   xHandle: "@Divyanscpu15",
+  codolio: "https://codolio.com/profile/HSTFfsyv",
 };
 
 export type Project = {

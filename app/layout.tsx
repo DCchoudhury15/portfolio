@@ -7,12 +7,12 @@ const body = Newsreader({ subsets: ["latin"], style: ["normal", "italic"], varia
 const ui = Hanken_Grotesk({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-ui", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Divyanshu Choudhury · Systems engineer",
+  title: "Divyanshu Choudhury · Systems & DevOps engineer",
   description:
-    "Systems engineer from Jabalpur. Guardrails for AI agents, telemetry pipelines, package managers and HPC build tooling. Code merged into CPython, OpenTelemetry, Jaeger and conda.",
+    "Systems and DevOps engineer and open-source contributor from Jabalpur. Linux, containers, Kubernetes, CI/CD and observability.",
   openGraph: {
-    title: "Divyanshu Choudhury · Systems engineer",
-    description: "I build the plumbing other engineers stand on.",
+    title: "Divyanshu Choudhury · Systems & DevOps engineer",
+    description: "I love the layer most people never see: Linux, containers, Kubernetes, CI/CD and observability.",
     type: "website",
   },
 };
