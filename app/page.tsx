@@ -143,7 +143,7 @@ export default function Home() {
 
         <section className="contact wrap" id="contact" aria-labelledby="contact-h">
           <span className="side">Encore</span>
-          <h2 id="contact-h">Let&apos;s build something <em>loud</em></h2>
+          <h2 id="contact-h">Let&apos;s work <em>together</em></h2>
           <p>Internships, open-source collaboration, or a good systems problem. My inbox is open.</p>
           <CopyEmail email={profile.email} />
           <div className="socials">

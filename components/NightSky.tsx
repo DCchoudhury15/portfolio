@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import sky from "@/lib/sky.json";
 
 /**
@@ -76,6 +76,33 @@ const extinction = (alt: number) => Math.pow(10, -0.4 * 0.25 * (1 / Math.max(Mat
 
 export default function NightSky() {
   const ref = useRef<HTMLCanvasElement>(null);
+  const [tip, setTip] = useState<{ x: number; y: number } | null>(null);
+
+  // A small label follows the pointer whenever it rests on open sky rather than on content.
+  useEffect(() => {
+    const OPEN = new Set(["HTML", "BODY", "MAIN"]);
+    const CONTAINERS = ["block", "contact", "wrap", "head", "records", "sessions", "rig", "notes", "onrepeat", "sky-note"];
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === "touch") return;
+      const el = e.target as HTMLElement | null;
+      const open = !!el && !el.closest(".hero, .nav") &&
+        (OPEN.has(el.tagName) || CONTAINERS.some((c) => el.classList?.contains(c)));
+      clearTimeout(timer);
+      if (open) timer = setTimeout(() => setTip({ x: e.clientX, y: e.clientY }), 250);
+      else setTip(null);
+    };
+    const onLeave = () => { clearTimeout(timer); setTip(null); };
+    window.addEventListener("pointermove", onMove, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
+    window.addEventListener("scroll", onLeave, { passive: true });
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("scroll", onLeave);
+    };
+  }, []);
 
   useEffect(() => {
     const canvas = ref.current;
@@ -175,7 +202,8 @@ export default function NightSky() {
         const a = (0.12 + rand() * 0.35) * extinction(alt);
         const tint = rand();
         g.fillStyle = tint < 0.2 ? `rgba(255,220,190,${a})` : tint < 0.4 ? `rgba(200,215,255,${a})` : `rgba(235,235,245,${a})`;
-        g.fillRect(x, y, rand() < 0.85 ? 0.8 : 1.3, rand() < 0.85 ? 0.8 : 1.3);
+        const sz = rand() < 0.8 ? 1.1 : 1.8;
+        g.fillRect(x, y, sz, sz);
       }
 
       // The catalogue stars, with a soft glow around the bright ones.
@@ -188,9 +216,9 @@ export default function NightSky() {
         const flux = Math.pow(10, -0.4 * (mag - 1)) * ext;
         const [cr, cg, cb] = starColour(bv + (1 - ext) * 0.8);
         const c = `${cr},${cg},${cb}`;
-        const r = Math.max(0.45, Math.min(3.2, 0.55 + 1.1 * Math.pow(flux, 0.33)));
+        const r = Math.max(0.7, Math.min(4.6, 0.85 + 1.6 * Math.pow(flux, 0.33)));
         const a = Math.min(1, 0.25 + 0.55 * Math.pow(flux, 0.4));
-        if (flux > 0.25) {
+        if (flux > 0.15) {
           const halo = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], r * 7);
           halo.addColorStop(0, `rgba(${c},${0.22 * Math.min(1, flux)})`);
           halo.addColorStop(1, `rgba(${c},0)`);
@@ -209,7 +237,7 @@ export default function NightSky() {
         const p = project(b.az, b.alt);
         if (!p) continue;
         const flux = Math.pow(10, -0.4 * (b.mag - 1)) * extinction(b.alt);
-        const r = Math.min(3.6, 1 + 1.1 * Math.pow(flux, 0.33));
+        const r = Math.min(5, 1.4 + 1.6 * Math.pow(flux, 0.33));
         const halo = g.createRadialGradient(p[0], p[1], 0, p[0], p[1], r * 9);
         halo.addColorStop(0, "rgba(255,240,214,0.35)"); halo.addColorStop(1, "rgba(255,240,214,0)");
         g.fillStyle = halo; g.beginPath(); g.arc(p[0], p[1], r * 9, 0, Math.PI * 2); g.fill();
@@ -313,5 +341,13 @@ export default function NightSky() {
     };
   }, []);
 
-  return <canvas ref={ref} className="night-sky" aria-hidden="true" />;
+  return (
+    <>
+      <canvas ref={ref} className="night-sky" aria-hidden="true" />
+      <div className={`sky-tip${tip ? " on" : ""}`} style={tip ? { left: tip.x, top: tip.y } : undefined} aria-hidden="true">
+        <b>The sky the night I was born</b>
+        <span>Jabalpur, India · every star where it really was</span>
+      </div>
+    </>
+  );
 }
