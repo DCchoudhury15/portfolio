@@ -86,7 +86,7 @@ export default function Home() {
 
           <div className="sessions-title">
             <h3>Session work · merged upstream</h3>
-            <a href="https://github.com/pulls?q=is%3Apr+author%3ADCchoudhury15+is%3Amerged" {...ext}>Every merged PR on GitHub ↗</a>
+            <a href="https://github.com/pulls?q=is%3Apr+author%3ADCchoudhury15+is%3Amerged+-user%3ADCchoudhury15" {...ext}>All 38 merged PRs on GitHub ↗</a>
           </div>
           <div className="sessions">
             {sessions.map((s) => (

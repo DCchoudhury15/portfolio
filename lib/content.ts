@@ -144,7 +144,7 @@ export const sessions: Session[] = [
   },
 ];
 
-export const alsoContributed = "kcl-lang, Knative, Kuadrant, skrub, skore and pgmpy";
+export const alsoContributed = "kcl-lang, Knative, Kuadrant, PipeCD, skrub, skore and pgmpy";
 
 export const rig = [
   { group: "Languages", items: "Go, C++, Rust, Python, TypeScript, SQL, Bash" },
