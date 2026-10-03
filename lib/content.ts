@@ -161,13 +161,13 @@ export const about = [
   "When I'm not doing that, I'm usually solving contest problems or building something I wanted to exist, like AgentWard.",
 ];
 
-export type Track = { title: string; artist: string; url: string };
+export type Track = { title: string; artist: string; album: string; url: string; art: string | null };
 
 // Shown until the live Spotify list loads, and whenever Spotify is unreachable.
 export const onRepeatFallback: Track[] = [
-  { title: "Riders on the Storm", artist: "The Doors", url: "https://open.spotify.com/track/1i4E6PK2RrWjT6J9vtc0jV" },
-  { title: "Comfortably Numb", artist: "Pink Floyd", url: "https://open.spotify.com/track/29zkoUsOE50f0I3n44LjjU" },
-  { title: "Kashmir", artist: "Led Zeppelin", url: "https://open.spotify.com/track/0Wa5Q145xoXkfhaCRgA67U" },
-  { title: "Sunshine of Your Love", artist: "Cream", url: "https://open.spotify.com/track/03Z8RmEoNzAbmxTM59m336" },
-  { title: "Wish You Were Here", artist: "Pink Floyd", url: "https://open.spotify.com/track/6mFkJmJqdDVQ1REhVfGgd1" },
+  { title: "The Changeling", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/2LpZ9kQet5vF5jWDu5gOOl", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
+  { title: "L.A. Woman", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/7edxTBMHCBGeuZXu08woVM", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
+  { title: "Riders on the Storm", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/6y7cf3GYYnJKDdomCIIk8d", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
+  { title: "Hyacinth House", artist: "The Doors", album: "L.A. Woman", url: "https://open.spotify.com/track/50bbgK5VVSsEseolfSuOYN", art: "https://i.scdn.co/image/ab67616d00001e02596fc34c70f6b033d394f82c" },
+  { title: "Back Door Man", artist: "The Doors", album: "The Doors", url: "https://open.spotify.com/track/03By6gD02qhtvIQiK8KidK", art: "https://i.scdn.co/image/ab67616d00001e0200d037dd3dfb578da4692088" },
 ];

@@ -133,8 +133,11 @@ export default function Home() {
               <div><dt>DSA</dt><dd><b>1736</b> LeetCode contest rating · 555+ problems · 35 rated contests · <a className="soft" href={profile.codolio} {...ext}>all stats on Codolio ↗</a></dd></div>
               <div><dt>Longest streak</dt><dd><b>213</b> days</dd></div>
               <div><dt>Based in</dt><dd>{profile.location}</dd></div>
-              <div><dt>On repeat this month</dt><dd><OnRepeat /></dd></div>
             </dl>
+          </div>
+          <div className="onrepeat">
+            <span className="side">On repeat this month</span>
+            <OnRepeat />
           </div>
         </section>
 

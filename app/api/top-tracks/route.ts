@@ -21,13 +21,23 @@ export async function GET() {
     });
     if (!res.ok) throw new Error(`Spotify top tracks failed: ${res.status}`);
     const data = (await res.json()) as {
-      items: { name: string; artists: { name: string }[]; external_urls: { spotify: string } }[];
+      items: {
+        name: string;
+        artists: { name: string }[];
+        album: { name: string; images: { url: string; width: number }[] };
+        external_urls: { spotify: string };
+      }[];
     };
-    const tracks: Track[] = data.items.map((t) => ({
-      title: t.name,
-      artist: t.artists.map((a) => a.name).join(", "),
-      url: t.external_urls.spotify,
-    }));
+    const tracks: Track[] = data.items.map((t) => {
+      const images = [...t.album.images].sort((a, b) => a.width - b.width);
+      return {
+        title: t.name,
+        artist: t.artists.map((a) => a.name).join(", "),
+        album: t.album.name,
+        url: t.external_urls.spotify,
+        art: (images.find((i) => i.width >= 300) ?? images[images.length - 1])?.url ?? null,
+      };
+    });
     memo = { tracks, at: Date.now() };
     return respond(tracks);
   } catch (err) {
