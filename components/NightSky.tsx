@@ -357,10 +357,12 @@ export default function NightSky() {
     readScroll();
     if (reduced) still(); else raf = requestAnimationFrame(frame);
 
-    const onScroll = () => { readScroll(); if (reduced) still(); };
+    const onScroll = () => { hover = -1; readScroll(); if (reduced) still(); };
+    const onLeaveWindow = (e: MouseEvent) => { if (!e.relatedTarget) hover = -1; };
     window.addEventListener("scroll", onScroll, { passive: true });
     if (!reduced) {
       window.addEventListener("pointermove", onPointer, { passive: true });
+      document.addEventListener("mouseout", onLeaveWindow);
       window.addEventListener("deviceorientation", onTilt);
       window.addEventListener("pointerdown", askTilt, { once: true });
     }
@@ -372,6 +374,7 @@ export default function NightSky() {
       cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointer);
+      document.removeEventListener("mouseout", onLeaveWindow);
       window.removeEventListener("deviceorientation", onTilt);
       window.removeEventListener("pointerdown", askTilt);
       window.removeEventListener("resize", onResize);
