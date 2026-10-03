@@ -6,9 +6,11 @@ is the tour.
 - **Light show.** The hero and every album sleeve are painted live by a WebGL shader in the style of
   1960s oil-projector light shows.
 - **On repeat.** The About section lists my top 5 Spotify tracks of the last ~4 weeks, refreshed hourly.
-- **Night sky.** The page background is the real sky over Jabalpur at 9 pm on the night I was born:
-  every naked-eye star in its true position and colour, the constellation figures, the Moon at its real
-  phase, and Jupiter and Saturn. `scripts/build-sky.mjs` computes it once into `lib/sky.json`.
+- **Night sky.** The page background is the real sky over Jabalpur at 9 pm on the night I was born,
+  looking south-east where the Milky Way was rising: every naked-eye star in its true position and
+  colour, thousands of fainter ones, the Milky Way with its dust lanes, and Jupiter. Scrolling tilts the
+  view down to the horizon, and the pointer or a tilted phone moves it a little.
+  `scripts/build-sky.mjs` computes the positions once into `lib/sky.json`.
 
 Built with Next.js, React and TypeScript. No UI framework, no tracking.
 
