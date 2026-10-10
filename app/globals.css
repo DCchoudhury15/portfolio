@@ -251,3 +251,22 @@ section.block { padding-block: 120px 0; }
   .mail .btn { width: 100%; justify-content: center; }
 }
 @media (min-width: 901px) and (max-width: 1100px) { .sessions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Tablets: keep two columns where there is room instead of stretching the phone layout. */
+@media (min-width: 601px) and (max-width: 900px) {
+  .record, .record:nth-child(even) { grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 28px; align-items: start; padding: 22px; }
+  .record h3 { font-size: clamp(30px, 4.6vw, 40px); }
+  .record .hook { font-size: 19px; }
+  .sleeve .st { font-size: clamp(20px, 3.2vw, 28px); }
+  .sessions, .rig { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .repeat { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+/* Phones: shrink the name on the narrowest screens so "Choudhury" keeps its margin,
+   and fit all six social icons on one row. */
+@media (max-width: 600px) {
+  .hero h1 { font-size: min(58px, calc((100vw - 40px) / 5.4)); }
+  .socials { gap: 10px; flex-wrap: nowrap; }
+  .socials a, .socials button { width: clamp(38px, calc((100vw - 90px) / 6), 48px); height: auto; aspect-ratio: 1; }
+}
+/* Large screens: let the page use more of the width. */
+@media (min-width: 1800px) { .wrap { max-width: 1400px; } }
