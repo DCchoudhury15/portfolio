@@ -5,11 +5,10 @@ import sky from "@/lib/sky.json";
 
 /**
  * The real sky over Jabalpur at 9 pm on the night I was born, drawn like a long-exposure photo
- * looking south-east, where the core of the Milky Way was rising over Scorpius.
+ * looking north, towards the Pole Star.
  *
- * The sky turns about the celestial pole the way the real one does, sped up like a time-lapse,
- * so stars rise over the hills on the left, arc across and set on the right, the brighter ones
- * leaving short trails.
+ * The sky spins about the Pole Star the way the real one does, sped up like a time-lapse: every
+ * star circles it, the brighter ones leaving short trails.
  * The sky glow, the Milky Way and the faint stars are drawn by a WebGL shader; the named stars,
  * planets and hills go on a 2D canvas above it. Scrolling tilts the view from high overhead down
  * to the horizon, and the pointer (or tilting a phone) moves it slightly. Hovering a star makes
@@ -20,13 +19,14 @@ type Body = { name: string; az: number; alt: number; mag: number };
 type Vec = [number, number, number]; // east, north, up
 
 const D = Math.PI / 180;
-const VIEW_AZ = 150; // facing south-south-east
+const VIEW_AZ = 0; // facing north, so the whole sky is seen spinning round the Pole Star
 const VIEW_ALT = 30;
 const H_FOV = 92; // degrees across the screen
 const EXTRA_W = 1.22; // scene is wider than the screen for pointer parallax
 const EXTRA_H = 1.7; // and taller, so scrolling can tilt the view
 const SPIN = 3 * D; // how far the sky turns each second: a time-lapse, though it always stays night
-const TRAIL = 4 * D; // brighter stars leave a short streak this far behind them, as in a long exposure
+const TRAIL = 14 * D; // brighter stars leave a curved trail this far back along their circle, as in a long exposure
+const TRAIL_STEPS = 8;
 
 const dot = (a: Vec, b: Vec) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
@@ -268,7 +268,8 @@ export default function NightSky() {
 
     const draw = (ms: number, offX: number, offY: number, angle: number, twinkle: boolean) => {
       const ct = Math.cos(angle), st = Math.sin(angle);
-      const trail = twinkle ? angle - TRAIL : angle, tc = Math.cos(trail), ts = Math.sin(trail);
+      // Points back along each star's circle round the pole, for the trails.
+      const back = twinkle ? Array.from({ length: TRAIL_STEPS }, (_, j) => { const t = angle - (TRAIL * (j + 1)) / TRAIL_STEPS; return [Math.cos(t), Math.sin(t)]; }) : [];
       if (shader) {
         const lst = (((sky.lst * D + angle) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         shader({ ox: ox - offX, oy: oy - offY, s, dpr, lst, cell, moon: turned(MOON, ct, st) });
@@ -311,16 +312,18 @@ export default function NightSky() {
             ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, r * 7, 0, Math.PI * 2); ctx.fill();
           }
         }
-        // A short streak back along the star's path, fading out behind it.
-        if (trail !== angle && !star.planet && star.mag < 4.2) {
-          const b = turned(star, tc, ts), Zb = dot(b, f);
-          if (Zb > -0.3) {
+        // A curved trail back along the star's circle round the pole, fading out behind it.
+        if (back.length && !star.planet && star.mag < 4.2) {
+          ctx.lineWidth = Math.max(0.8, r * 0.8); ctx.lineCap = "round";
+          let px = x, py = y;
+          for (let j = 0; j < back.length; j++) {
+            const b = turned(star, back[j][0], back[j][1]), Zb = dot(b, f);
+            if (Zb < -0.3) break;
             const kb = (2 * s) / (1 + Zb);
             const bx = ox - offX + kb * dot(b, right), by = oy - offY - kb * dot(b, up);
-            const streak = ctx.createLinearGradient(bx, by, x, y);
-            streak.addColorStop(0, `rgba(${c},0)`); streak.addColorStop(1, `rgba(${c},${a * 0.55})`);
-            ctx.strokeStyle = streak; ctx.lineWidth = Math.max(0.8, r * 0.9); ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(x, y); ctx.stroke();
+            ctx.strokeStyle = `rgba(${c},${a * 0.5 * (1 - j / back.length)})`;
+            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.stroke();
+            px = bx; py = by;
           }
         }
         let shine = a;
