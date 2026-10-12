@@ -7,8 +7,9 @@ import sky from "@/lib/sky.json";
  * The real sky over Jabalpur at 9 pm on the night I was born, drawn like a long-exposure photo
  * looking south-east, where the core of the Milky Way was rising over Scorpius.
  *
- * The sky turns about the celestial pole the way the real one does, only faster: an hour of the
- * night passes every minute, so stars rise over the hills on the left and set on the right.
+ * The sky turns about the celestial pole the way the real one does, sped up like a time-lapse,
+ * so stars rise over the hills on the left, arc across and set on the right, the brighter ones
+ * leaving short trails.
  * The sky glow, the Milky Way and the faint stars are drawn by a WebGL shader; the named stars,
  * planets and hills go on a 2D canvas above it. Scrolling tilts the view from high overhead down
  * to the horizon, and the pointer (or tilting a phone) moves it slightly. Hovering a star makes
@@ -24,7 +25,8 @@ const VIEW_ALT = 30;
 const H_FOV = 92; // degrees across the screen
 const EXTRA_W = 1.22; // scene is wider than the screen for pointer parallax
 const EXTRA_H = 1.7; // and taller, so scrolling can tilt the view
-const SPIN = 0.25 * D; // how far the sky turns each second: an hour of the night every minute
+const SPIN = 1.5 * D; // how far the sky turns each second: like a time-lapse, six hours of the night a minute
+const TRAIL = 2.5 * D; // brighter stars leave a short streak this far behind them, as in a long exposure
 
 const dot = (a: Vec, b: Vec) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
@@ -111,7 +113,7 @@ float milkyWay(float l, float b){
   float i = (0.22 + 0.78*exp(-sq(l/70.0))) * exp(-sq((b + 0.5)/width));
   i += 0.65*exp(-(l*l + sq(b*1.4))/98.0); // the bulge
   // The Great Rift and the patchy dust that splits the band.
-  float rift = exp(-sq((b - 1.3 + 1.5*sin(l*0.06))/2.1)) * (l > -25.0 && l < 75.0 ? 1.0 : 0.35);
+  float rift = exp(-sq((b - 1.3 + 1.5*sin(l*0.06))/2.1)) * (0.35 + 0.65*smoothstep(-35.0, -15.0, l)*(1.0 - smoothstep(65.0, 85.0, l)));
   i *= 1.0 - 0.6*rift*(0.6 + 0.6*fbm(vec2(l*0.09, b*0.2)));
   i *= 1.0 - 0.55*exp(-(sq((l + 59.0)/4.0) + sq((b + 1.0)/3.0))); // the Coalsack, beside the Southern Cross
   i *= 0.55 + 0.9*fbm(vec2(l*0.22 + 10.0, b*0.45));
@@ -266,6 +268,7 @@ export default function NightSky() {
 
     const draw = (ms: number, offX: number, offY: number, angle: number, twinkle: boolean) => {
       const ct = Math.cos(angle), st = Math.sin(angle);
+      const trail = twinkle ? angle - TRAIL : angle, tc = Math.cos(trail), ts = Math.sin(trail);
       if (shader) {
         const lst = (((sky.lst * D + angle) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         shader({ ox: ox - offX, oy: oy - offY, s, dpr, lst, cell, moon: turned(MOON, ct, st) });
@@ -306,6 +309,18 @@ export default function NightSky() {
             halo.addColorStop(0, `rgba(${c},${0.22 * Math.min(1, flux)})`);
             halo.addColorStop(1, `rgba(${c},0)`);
             ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, r * 7, 0, Math.PI * 2); ctx.fill();
+          }
+        }
+        // A short streak back along the star's path, fading out behind it.
+        if (trail !== angle && !star.planet && star.mag < 4.2) {
+          const b = turned(star, tc, ts), Zb = dot(b, f);
+          if (Zb > -0.3) {
+            const kb = (2 * s) / (1 + Zb);
+            const bx = ox - offX + kb * dot(b, right), by = oy - offY - kb * dot(b, up);
+            const streak = ctx.createLinearGradient(bx, by, x, y);
+            streak.addColorStop(0, `rgba(${c},0)`); streak.addColorStop(1, `rgba(${c},${a * 0.55})`);
+            ctx.strokeStyle = streak; ctx.lineWidth = Math.max(0.8, r * 0.9); ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(x, y); ctx.stroke();
           }
         }
         let shine = a;
@@ -398,7 +413,7 @@ export default function NightSky() {
       if (typeof DOE?.requestPermission === "function") DOE.requestPermission().catch(() => {});
     };
 
-    let last = 0, raf = 0, lastX = NaN, lastY = NaN, lastFrame = 0, start = NaN;
+    let raf = 0, lastFrame = 0, start = NaN;
     const frame = (ms: number) => {
       if (isNaN(start)) start = ms;
       const rg = range();
@@ -411,14 +426,9 @@ export default function NightSky() {
       // tilting a phone moves the sky a little further.
       const offX = rg.x + cx * Math.min(touch ? 34 : 20, rg.x);
       const offY = scroll * rg.y + cy * Math.min(touch ? 34 : 30, rg.y * 0.05);
-      const moved = Math.abs(offX - lastX) > 0.1 || Math.abs(offY - lastY) > 0.1;
       if (hover >= 0) { const e = hot.get(hover) ?? 0; hot.set(hover, e + (1 - e) * (1 - Math.pow(0.82, dt))); }
       hot.forEach((e, n) => { if (n !== hover) { e *= Math.pow(0.9, dt); if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
-      // The turning alone is slow, so about 30 frames a second is plenty for it.
-      if (moved || hot.size > 0 || ms - last > 33) {
-        draw(ms, offX, offY, ((ms - start) / 1000) * SPIN, true);
-        last = ms; lastX = offX; lastY = offY;
-      }
+      draw(ms, offX, offY, ((ms - start) / 1000) * SPIN, true);
       raf = requestAnimationFrame(frame);
     };
     // With reduced motion the sky stays as it was that night.
@@ -443,7 +453,7 @@ export default function NightSky() {
       window.addEventListener("pointerdown", onTap, { passive: true });
     }
     let timer: ReturnType<typeof setTimeout>;
-    const onResize = () => { clearTimeout(timer); timer = setTimeout(() => { hot.clear(); hover = -1; render(); readScroll(); lastX = NaN; if (reduced) still(); }, 200); };
+    const onResize = () => { clearTimeout(timer); timer = setTimeout(() => { hot.clear(); hover = -1; render(); readScroll(); if (reduced) still(); }, 200); };
     window.addEventListener("resize", onResize);
 
     return () => {
