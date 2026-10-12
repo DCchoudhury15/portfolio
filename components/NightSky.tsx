@@ -25,8 +25,8 @@ const VIEW_ALT = 30;
 const H_FOV = 92; // degrees across the screen
 const EXTRA_W = 1.22; // scene is wider than the screen for pointer parallax
 const EXTRA_H = 1.7; // and taller, so scrolling can tilt the view
-const SPIN = 1.5 * D; // how far the sky turns each second: like a time-lapse, six hours of the night a minute
-const TRAIL = 2.5 * D; // brighter stars leave a short streak this far behind them, as in a long exposure
+const SPIN = 3 * D; // how far the sky turns each second: a time-lapse, though it always stays night
+const TRAIL = 4 * D; // brighter stars leave a short streak this far behind them, as in a long exposure
 
 const dot = (a: Vec, b: Vec) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
