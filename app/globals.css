@@ -6,6 +6,8 @@
   --bg-2: #131118;        /* raised surface */
   --bg-3: #1a1720;        /* hover surface */
   --line: rgba(236, 228, 214, .10);
+  /* A hairline that fades out at both ends, so dividers dissolve into the sky. */
+  --fade-line: linear-gradient(90deg, transparent, rgba(236, 228, 214, .16) 18%, rgba(236, 228, 214, .16) 82%, transparent);
   --text: #ece4d6;        /* aged paper */
   --muted: #9a919f;       /* smoke */
   --gold: #cfa24a;        /* the one accent: brass and lamplight */
@@ -31,7 +33,7 @@ a { color: inherit; }
 
 /* ---------- Nav ---------- */
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding-top: env(safe-area-inset-top, 0px); transition: background .3s, border-color .3s; border-bottom: 1px solid transparent; }
-.nav.solid { background: rgba(11, 10, 13, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-color: var(--line); }
+.nav.solid { background: rgba(11, 10, 13, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-image: var(--fade-line) 1; }
 .nav .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; height: 64px; }
 .mono { font: 400 22px/1 var(--display); text-decoration: none; letter-spacing: .02em; }
 .mono span { color: var(--gold); }
@@ -72,8 +74,11 @@ section.block { padding-block: 120px 0; }
 
 /* ---------- Side A: projects ---------- */
 .records { display: grid; gap: 28px; }
-.record { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; padding: 28px; border-radius: 22px; background: var(--bg-2); border: 1px solid var(--line); transition: background .3s, border-color .3s; }
-.record:hover { background: var(--bg-3); border-color: rgba(207,162,74,.25); }
+.record { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; padding: 28px; }
+/* Cards have no box: a soft surface that fades into the sky behind them, and a clean line between them. */
+.record::before, .gsoc::before, .session::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: 36px; background: rgba(19, 17, 24, .74); filter: blur(26px); transition: background .4s; pointer-events: none; }
+.record:hover::before { background: rgba(26, 23, 32, .86); }
+.record + .record::after { content: ""; position: absolute; left: 0; right: 0; top: -15px; height: 1px; background: var(--fade-line); }
 .record:nth-child(even) { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
 .record:nth-child(even) .sleeve { order: 2; }
 .sleeve { position: relative; aspect-ratio: 1; max-width: 100%; border-radius: 6px; overflow: hidden; box-shadow: 0 30px 60px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04); }
@@ -96,13 +101,14 @@ section.block { padding-block: 120px 0; }
 .links .flag { color: var(--muted); font-weight: 500; }
 
 /* ---------- Side B ---------- */
-.gsoc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 56px; padding: 44px; border-radius: 22px; border: 1px solid rgba(207,162,74,.28); background: radial-gradient(120% 140% at 0% 0%, rgba(207,162,74,.10), transparent 55%), var(--bg-2); }
+.gsoc { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 56px; padding: 44px; position: relative; isolation: isolate; }
+.gsoc::before { background: radial-gradient(120% 140% at 0% 0%, rgba(207,162,74,.12), transparent 55%), rgba(19, 17, 24, .74); }
 .gsoc .role { font: 500 14px/1.4 var(--ui); color: var(--gold); letter-spacing: .03em; }
 .gsoc h3 { margin: 10px 0 14px; font: 400 clamp(34px, 4vw, 50px)/1 var(--display); }
 .gsoc p { margin: 0; color: var(--muted); }
 .gsoc-links { margin-top: 22px; }
 .gsoc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; counter-reset: t; }
-.gsoc li { counter-increment: t; display: grid; grid-template-columns: 2.4em minmax(0, 1fr); gap: 4px 12px; padding: 16px 0; border-top: 1px solid var(--line); }
+.gsoc li { counter-increment: t; display: grid; grid-template-columns: 2.4em minmax(0, 1fr); gap: 4px 12px; padding: 16px 0; border-top: 1px solid; border-image: var(--fade-line) 1; }
 .gsoc li:first-child { border-top: 0; padding-top: 0; }
 .gsoc li::before { content: counter(t, decimal-leading-zero); font: 500 13px/1.9 var(--ui); color: var(--gold); }
 .gsoc li b { font-weight: 600; }
@@ -111,7 +117,7 @@ section.block { padding-block: 120px 0; }
 .sessions-title h3 { margin: 0; font: 400 clamp(30px, 3.6vw, 44px)/1 var(--display); }
 .sessions-title a { font: 600 14px/1 var(--ui); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 4px; }
 .sessions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
-.session { padding: 24px; border-radius: 18px; background: var(--bg-2); border: 1px solid var(--line); display: grid; gap: 12px; align-content: start; }
+.session { position: relative; isolation: isolate; padding: 24px; display: grid; gap: 12px; align-content: start; }
 .session header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
 .session h4 { margin: 0; font: 400 24px/1.1 var(--display); }
 .session .count { font: 500 13px/1 var(--ui); color: var(--gold); white-space: nowrap; }
@@ -123,8 +129,8 @@ section.block { padding-block: 120px 0; }
 .also { margin: 22px 0 0; color: var(--muted); font-size: 17px; }
 
 /* ---------- Rig ---------- */
-.rig { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
-.rig > div { padding: 28px 28px 28px 0; border-bottom: 1px solid var(--line); }
+.rig { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid; border-image: var(--fade-line) 1; }
+.rig > div { padding: 28px 28px 28px 0; border-bottom: 1px solid; border-image: var(--fade-line) 1; }
 .rig h3 { margin: 0 0 10px; font: italic 400 20px/1.2 var(--body); color: var(--gold); }
 .rig p { margin: 0; font: 400 24px/1.35 var(--display); color: var(--text); }
 
@@ -132,7 +138,7 @@ section.block { padding-block: 120px 0; }
 .notes { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 64px; align-items: start; }
 .notes .prose p { margin: 0 0 18px; color: #d4cbbd; max-width: 36em; }
 .ledger { display: grid; gap: 0; margin: 0; }
-.ledger div { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.ledger div { display: grid; grid-template-columns: 9em minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid; border-image: var(--fade-line) 1; }
 .ledger dt { font: 500 14px/1.5 var(--ui); color: var(--muted); }
 .ledger dd { margin: 0; font-size: 18px; line-height: 1.45; }
 .ledger dd a.soft { color: var(--muted); text-decoration: none; border-bottom: 1px solid var(--line); transition: color .2s, border-color .2s; }
@@ -192,10 +198,12 @@ section.block { padding-block: 120px 0; }
   .hero .lede, .head p, .record .desc, .gsoc p, .gsoc li span, .notes .prose p, .contact p, .also { font-family: var(--ui); }
 
   /* One left edge for everything: cards lose their boxes on phones. */
-  .record, .record:hover { background: none; border: 0; padding: 0; border-radius: 0; }
+  .record { padding: 0; }
+  .record::before, .gsoc::before { display: none; }
+  .record + .record::after { top: -24px; }
   .records { gap: 48px; }
   .record .desc { font-size: 15.5px; }
-  .gsoc { background: none; border: 0; padding: 0 !important; border-radius: 0; }
+  .gsoc { padding: 0 !important; }
   .gsoc li { grid-template-columns: 2.2em minmax(0, 1fr); }
   .ledger div { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 14px 0; }
   .ledger dt { font-size: 13px; letter-spacing: .02em; }

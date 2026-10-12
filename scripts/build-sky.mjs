@@ -25,13 +25,14 @@ const horizon = (lonDeg, decDeg) => {
 const get = async (f) => (await fetch(`${DATA}/${f}`)).json();
 const stars = await get("stars.6.json");
 
-// [azimuth, altitude, magnitude, B-V colour index], only stars above the horizon.
+// [azimuth, altitude, magnitude, B-V colour index] at that moment. Stars below the horizon are kept
+// too, because the sky turns on the page and they rise later; only those that never rise are left out.
 const starList = [];
 for (const f of stars.features) {
   const mag = f.properties.mag;
   if (mag > MAX_MAG) continue;
+  if (f.geometry.coordinates[1] < PLACE.lat - 92) continue;
   const [az, alt] = horizon(...f.geometry.coordinates);
-  if (alt < -2) continue;
   starList.push([az, alt, round(mag, 1), round(parseFloat(f.properties.bv) || 0.6, 2)]);
 }
 
@@ -57,11 +58,11 @@ const out = {
   // Local sidereal time in degrees: with the latitude, enough to place the Milky Way.
   lst: round(((Astronomy.SiderealTime(time) + PLACE.lon / 15) % 24) * 15, 3),
   stars: starList,
-  bodies: [...bodies.filter((b) => b.alt > -2), sun],
+  bodies: [...bodies, sun],
   moon: { phase: moonPhase, lit: moonLit },
 };
 writeFileSync(new URL("../lib/sky.json", import.meta.url), JSON.stringify(out));
-console.log(`${starList.length} stars above the horizon, LST ${out.lst} deg`);
+console.log(`${starList.length} stars that rise over Jabalpur, LST ${out.lst} deg`);
 console.log("Moon and planets:", bodies.map((b) => `${b.name} alt ${b.alt}° az ${b.az}° mag ${b.mag}`).join("; "));
 console.log(`Sun alt ${sun.alt}° az ${sun.az}°`);
 console.log(`Moon phase angle ${moonPhase}°, ${Math.round(moonLit * 100)}% lit`);
