@@ -7,7 +7,7 @@ export default function Sleeve({ id, title }: { id: string; cat?: string; year?:
   if (!p) return null;
   return (
     <div className="sleeve">
-      <LivingPainting p={p} alt={`${p.title} by ${p.artist} (${p.year}), shown with ${title}`} />
+      <LivingPainting p={p} mist alt={`${p.title} by ${p.artist} (${p.year}), shown with ${title}`} />
     </div>
   );
 }

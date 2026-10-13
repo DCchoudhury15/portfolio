@@ -48,13 +48,45 @@ function strokeField(px: Uint8ClampedArray, w: number, h: number, cell: number):
   return { cols, rows, cell, dx, dy };
 }
 
+/**
+ * A soft, irregular mask: opaque in the middle, thinning out like mist towards a wandering edge,
+ * so the painting dissolves into the sky without any circle or other shape around it.
+ */
+function mistMask(w: number, h: number) {
+  const N = 128, m = document.createElement("canvas");
+  m.width = N; m.height = N;
+  const g = m.getContext("2d")!, img = g.createImageData(N, N);
+  const ph = Array.from({ length: 6 }, () => Math.random() * Math.PI * 2);
+  for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) {
+    const u = (i + 0.5) / N * 2 - 1, v = (j + 0.5) / N * 2 - 1;
+    const d = Math.hypot(u, v), a = Math.atan2(v, u);
+    // The edge wanders in and out around the painting, and the fade is wide and patchy.
+    const edge = 0.92 + 0.07 * Math.sin(2 * a + ph[0]) + 0.06 * Math.sin(3 * a + ph[1]) + 0.04 * Math.sin(5 * a + ph[2]);
+    const patch = 0.08 * Math.sin(u * 5 + ph[3]) * Math.sin(v * 4 + ph[4]) + 0.05 * Math.sin((u + v) * 7 + ph[5]);
+    const t = Math.min(1, Math.max(0, (d + patch - edge * 0.25) / (edge * 0.75)));
+    const alpha = 1 - t * t * (3 - 2 * t);
+    img.data[(j * N + i) * 4 + 3] = Math.round(255 * alpha);
+  }
+  g.putImageData(img, 0, 0);
+  const out = document.createElement("canvas");
+  out.width = w; out.height = h;
+  const o = out.getContext("2d")!;
+  o.imageSmoothingQuality = "high";
+  o.drawImage(m, 0, 0, w, h);
+  return out;
+}
+
 /** Starts the moving painting on a canvas. Returns a stop function, or null without a 2D canvas. */
-export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, focus: [number, number], speed: number, onReady: () => void) {
+export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, focus: [number, number], speed: number, mist: boolean, onReady: () => void) {
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  // The painting as it hangs, and a canvas where the moving strokes build up over it.
   const base = document.createElement("canvas");
   const bctx = base.getContext("2d", { willReadFrequently: true })!;
+  const paint = document.createElement("canvas");
+  const pctx = paint.getContext("2d")!;
+  let mask: HTMLCanvasElement | null = null;
 
   let w = 0, h = 0, scale = 1;
   let pixels = new Uint8ClampedArray(0);
@@ -69,37 +101,47 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
     vx[i] = Math.cos(angle); vy[i] = Math.sin(angle);
     life[i] = 40 + Math.random() * 120;
     const o = (Math.floor(y[i]) * w + Math.floor(x[i])) * 4;
-    // A shade brighter than the paint underneath, so the moving strokes show without hiding it.
-    colour[i] = `rgb(${Math.min(255, pixels[o] * 1.09)},${Math.min(255, pixels[o + 1] * 1.09)},${Math.min(255, pixels[o + 2] * 1.09)})`;
+    // A shade brighter than the paint underneath, so the moving strokes show over it.
+    colour[i] = `rgb(${Math.min(255, pixels[o] * 1.1)},${Math.min(255, pixels[o + 1] * 1.1)},${Math.min(255, pixels[o + 2] * 1.1)})`;
+  };
+
+  // Show the strokes, faded into the sky through the mist mask.
+  const present = () => {
+    ctx.globalCompositeOperation = "copy";
+    ctx.drawImage(paint, 0, 0);
+    if (mask) { ctx.globalCompositeOperation = "destination-in"; ctx.drawImage(mask, 0, 0); }
+    ctx.globalCompositeOperation = "source-over";
   };
 
   // Size to the box, crop the painting to cover it, and read its strokes.
   const fit = () => {
     const box = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    w = canvas.width = base.width = Math.max(2, Math.min(1400, Math.round(box.width * dpr)));
-    h = canvas.height = base.height = Math.max(2, Math.min(1400, Math.round(box.height * dpr)));
+    w = canvas.width = base.width = paint.width = Math.max(2, Math.min(1400, Math.round(box.width * dpr)));
+    h = canvas.height = base.height = paint.height = Math.max(2, Math.min(1400, Math.round(box.height * dpr)));
     scale = w / Math.max(box.width, 1);
     const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
     const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
     bctx.drawImage(img, (w - dw) * focus[0], (h - dh) * focus[1], dw, dh);
     pixels = bctx.getImageData(0, 0, w, h).data;
     field = strokeField(pixels, w, h, Math.max(3, Math.round(4 * scale)));
-    ctx.drawImage(base, 0, 0);
-    n = Math.min(4600, Math.round((w * h) / (105 * scale * scale)));
+    pctx.drawImage(base, 0, 0);
+    mask = mist ? mistMask(w, h) : null;
+    n = Math.min(5000, Math.round((w * h) / (95 * scale * scale)));
     x = new Float32Array(n); y = new Float32Array(n); vx = new Float32Array(n); vy = new Float32Array(n); life = new Float32Array(n);
     colour = new Array(n);
     for (let i = 0; i < n; i++) { spawn(i); life[i] *= Math.random(); }
+    present();
   };
   fit();
 
   let visible = true, raf = 0, ready = false, last = 0;
   const step = () => {
     // Old trails melt back into the painting.
-    ctx.globalAlpha = 0.065;
-    ctx.drawImage(base, 0, 0);
-    ctx.globalAlpha = 0.86;
-    ctx.lineWidth = 1.5 * scale; ctx.lineCap = "round";
+    pctx.globalAlpha = 0.05;
+    pctx.drawImage(base, 0, 0);
+    pctx.globalAlpha = 0.88;
+    pctx.lineWidth = 1.6 * scale; pctx.lineCap = "round";
     const v = 0.9 * speed * scale;
     for (let i = 0; i < n; i++) {
       if (--life[i] <= 0) { spawn(i); continue; }
@@ -110,11 +152,12 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
       vx[i] = vx[i] * 0.7 + fx * 0.3; vy[i] = vy[i] * 0.7 + fy * 0.3;
       const nx = x[i] + vx[i] * v, ny = y[i] + vy[i] * v;
       if (nx < 0 || ny < 0 || nx >= w || ny >= h) { spawn(i); continue; }
-      ctx.strokeStyle = colour[i];
-      ctx.beginPath(); ctx.moveTo(x[i], y[i]); ctx.lineTo(nx, ny); ctx.stroke();
+      pctx.strokeStyle = colour[i];
+      pctx.beginPath(); pctx.moveTo(x[i], y[i]); pctx.lineTo(nx, ny); pctx.stroke();
       x[i] = nx; y[i] = ny;
     }
-    ctx.globalAlpha = 1;
+    pctx.globalAlpha = 1;
+    present();
     if (!ready) { ready = true; onReady(); }
   };
   const frame = (ms: number) => {

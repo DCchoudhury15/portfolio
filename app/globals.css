@@ -83,6 +83,8 @@ section.block { padding-block: 120px 0; }
 .record:nth-child(even) .sleeve { order: 2; }
 .sleeve { position: relative; aspect-ratio: 1; max-width: 100%; }
 .sleeve img, .sleeve canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; -webkit-mask-image: radial-gradient(closest-side, #000 58%, transparent); mask-image: radial-gradient(closest-side, #000 58%, transparent); animation: drift 40s ease-in-out infinite alternate; transition: filter .6s; }
+/* The moving painting carries its own misty edge, so it needs no round mask. */
+.sleeve canvas { -webkit-mask-image: none; mask-image: none; }
 .record:hover .sleeve img, .record:hover .sleeve canvas { filter: brightness(1.12); }
 /* The paintings drift slowly, like the sky behind them. */
 @keyframes drift { from { transform: scale(1.04) translate(0, 0); } to { transform: scale(1.12) translate(-2%, -1.5%); } }
