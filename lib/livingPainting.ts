@@ -1,93 +1,133 @@
-// Makes a painting flow slowly into itself: a WebGL shader pushes the image along a gentle,
-// ever-changing current (the curl of a noise field). Two copies, half a cycle apart, are
-// cross-faded so the paint keeps flowing without smearing further and further.
+// Makes a painting move along its own brush strokes, in the spirit of Petros Vrellis's animated
+// Starry Night. The direction of the strokes is read from the painting itself (the structure
+// tensor of its brightness: strokes run across the direction in which colour changes fastest).
+// Thousands of short strokes, each carrying the colour of the paint where it starts, then flow
+// along those directions and leave trails that slowly melt back into the painting.
 
-const VERT = `attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = aPos*0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+type Field = { cols: number; rows: number; cell: number; dx: Float32Array; dy: Float32Array };
 
-const FRAG = `
-precision highp float;
-varying vec2 vUv;
-uniform sampler2D uTex; uniform float uTime; uniform vec2 uScale; uniform vec2 uOffset; uniform float uAmp;
-float hash(vec2 p){ vec3 q = fract(vec3(p.xyx) * 0.1031); q += dot(q, q.yzx + 33.33); return fract((q.x + q.y) * q.z); }
-float noise(vec2 p){ vec2 i = floor(p), f = fract(p), u = f*f*(3.0-2.0*f);
-  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }
-float fbm(vec2 p){ float s = 0.0, a = 0.5; for (int i = 0; i < 3; i++){ s += a*noise(p); p *= 2.03; a *= 0.5; } return s; }
-// The current: the curl of a slowly changing noise field, so it swirls without bunching up.
-vec2 current(vec2 p, float t){
-  const float e = 0.02;
-  vec2 q = p + vec2(t, -t*0.7);
-  float dy = fbm(q + vec2(0.0, e)) - fbm(q - vec2(0.0, e));
-  float dx = fbm(q + vec2(e, 0.0)) - fbm(q - vec2(e, 0.0));
-  return vec2(dy, -dx) / (2.0*e);
-}
-void main(){
-  vec2 uv = vec2(vUv.x, 1.0 - vUv.y) * uScale + uOffset; // cover-crop into the painting
-  vec2 c = current(uv*2.5, uTime*0.02) * uAmp;
-  float pa = fract(uTime*0.05), pb = fract(uTime*0.05 + 0.5);
-  vec4 a = texture2D(uTex, uv - c*pa);
-  vec4 b = texture2D(uTex, uv - c*pb);
-  float wa = 1.0 - abs(2.0*pa - 1.0);
-  gl_FragColor = vec4(mix(b.rgb, a.rgb, wa), 1.0);
-}`;
-
-/** Starts the flowing painting on a canvas. Returns a stop function, or null without WebGL. */
-export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, focus: [number, number], amp: number, onReady: () => void) {
-  const gl = canvas.getContext("webgl", { antialias: false, alpha: false, premultipliedAlpha: false });
-  if (!gl) return null;
-  const prog = gl.createProgram()!;
-  for (const [type, src] of [[gl.VERTEX_SHADER, VERT], [gl.FRAGMENT_SHADER, FRAG]] as const) {
-    const sh = gl.createShader(type)!;
-    gl.shaderSource(sh, src); gl.compileShader(sh); gl.attachShader(prog, sh);
+/** Stroke direction at every cell of a coarse grid over the painting. */
+function strokeField(px: Uint8ClampedArray, w: number, h: number, cell: number): Field {
+  const cols = Math.ceil(w / cell), rows = Math.ceil(h / cell);
+  // Brightness, averaged into cells.
+  const lum = new Float32Array(cols * rows), count = new Float32Array(cols * rows);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const o = (y * w + x) * 4, c = Math.floor(y / cell) * cols + Math.floor(x / cell);
+    lum[c] += 0.3 * px[o] + 0.59 * px[o + 1] + 0.11 * px[o + 2]; count[c]++;
   }
-  gl.linkProgram(prog);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return null;
-  gl.useProgram(prog);
-  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-  const aPos = gl.getAttribLocation(prog, "aPos");
-  gl.enableVertexAttribArray(aPos);
-  gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-  gl.bindTexture(gl.TEXTURE_2D, gl.createTexture());
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
-  const u = (n: string) => gl.getUniformLocation(prog, n);
-  const uTime = u("uTime"), uScale = u("uScale"), uOffset = u("uOffset");
-  gl.uniform1f(u("uAmp"), amp);
+  for (let i = 0; i < lum.length; i++) lum[i] /= count[i] || 1;
+  // Structure tensor from Sobel gradients.
+  const at = (x: number, y: number) => lum[Math.min(rows - 1, Math.max(0, y)) * cols + Math.min(cols - 1, Math.max(0, x))];
+  let jxx = new Float32Array(cols * rows), jyy = new Float32Array(cols * rows), jxy = new Float32Array(cols * rows);
+  for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+    const gx = at(x + 1, y - 1) + 2 * at(x + 1, y) + at(x + 1, y + 1) - at(x - 1, y - 1) - 2 * at(x - 1, y) - at(x - 1, y + 1);
+    const gy = at(x - 1, y + 1) + 2 * at(x, y + 1) + at(x + 1, y + 1) - at(x - 1, y - 1) - 2 * at(x, y - 1) - at(x + 1, y - 1);
+    const i = y * cols + x;
+    jxx[i] = gx * gx; jyy[i] = gy * gy; jxy[i] = gx * gy;
+  }
+  // Smooth the tensor so neighbouring strokes agree and the flow follows the larger swirls.
+  const blur = (a: Float32Array) => {
+    const out = new Float32Array(a.length), r = 2;
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      let s = 0, n = 0;
+      for (let j = -r; j <= r; j++) for (let k = -r; k <= r; k++) {
+        const yy = y + j, xx = x + k;
+        if (yy >= 0 && yy < rows && xx >= 0 && xx < cols) { s += a[yy * cols + xx]; n++; }
+      }
+      out[y * cols + x] = s / n;
+    }
+    return out;
+  };
+  for (let pass = 0; pass < 3; pass++) { jxx = blur(jxx); jyy = blur(jyy); jxy = blur(jxy); }
+  const dx = new Float32Array(cols * rows), dy = new Float32Array(cols * rows);
+  for (let i = 0; i < dx.length; i++) {
+    // The gradient's direction, turned a quarter turn: along the stroke.
+    const a = 0.5 * Math.atan2(2 * jxy[i], jxx[i] - jyy[i]) + Math.PI / 2;
+    dx[i] = Math.cos(a); dy[i] = Math.sin(a);
+  }
+  return { cols, rows, cell, dx, dy };
+}
 
-  // Size the canvas to its box and crop the painting to cover it, like object-fit: cover.
+/** Starts the moving painting on a canvas. Returns a stop function, or null without a 2D canvas. */
+export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, focus: [number, number], speed: number, onReady: () => void) {
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const base = document.createElement("canvas");
+  const bctx = base.getContext("2d", { willReadFrequently: true })!;
+
+  let w = 0, h = 0, scale = 1;
+  let pixels = new Uint8ClampedArray(0);
+  let field: Field = { cols: 1, rows: 1, cell: 1, dx: new Float32Array(1), dy: new Float32Array(1) };
+  // Particles: position, current direction, the paint colour they carry, and remaining life.
+  let n = 0, x = new Float32Array(0), y = new Float32Array(0), vx = new Float32Array(0), vy = new Float32Array(0), life = new Float32Array(0);
+  let colour: string[] = [];
+
+  const spawn = (i: number) => {
+    x[i] = Math.random() * w; y[i] = Math.random() * h;
+    const angle = Math.random() * Math.PI * 2;
+    vx[i] = Math.cos(angle); vy[i] = Math.sin(angle);
+    life[i] = 40 + Math.random() * 120;
+    const o = (Math.floor(y[i]) * w + Math.floor(x[i])) * 4;
+    // A shade brighter than the paint underneath, so the moving strokes show without hiding it.
+    colour[i] = `rgb(${Math.min(255, pixels[o] * 1.06)},${Math.min(255, pixels[o + 1] * 1.06)},${Math.min(255, pixels[o + 2] * 1.06)})`;
+  };
+
+  // Size to the box, crop the painting to cover it, and read its strokes.
   const fit = () => {
     const box = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    canvas.width = Math.max(2, Math.min(1400, Math.round(box.width * dpr)));
-    canvas.height = Math.max(2, Math.min(1400, Math.round(box.height * dpr)));
-    const boxAspect = box.width / Math.max(box.height, 1), imgAspect = img.naturalWidth / img.naturalHeight;
-    const sx = boxAspect < imgAspect ? boxAspect / imgAspect : 1, sy = boxAspect < imgAspect ? 1 : imgAspect / boxAspect;
-    gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.uniform2f(uScale, sx, sy);
-    gl.uniform2f(uOffset, (1 - sx) * focus[0], (1 - sy) * focus[1]);
+    w = canvas.width = base.width = Math.max(2, Math.min(1400, Math.round(box.width * dpr)));
+    h = canvas.height = base.height = Math.max(2, Math.min(1400, Math.round(box.height * dpr)));
+    scale = w / Math.max(box.width, 1);
+    const k = Math.max(w / img.naturalWidth, h / img.naturalHeight);
+    const dw = img.naturalWidth * k, dh = img.naturalHeight * k;
+    bctx.drawImage(img, (w - dw) * focus[0], (h - dh) * focus[1], dw, dh);
+    pixels = bctx.getImageData(0, 0, w, h).data;
+    field = strokeField(pixels, w, h, Math.max(3, Math.round(4 * scale)));
+    ctx.drawImage(base, 0, 0);
+    n = Math.min(3500, Math.round((w * h) / (150 * scale * scale)));
+    x = new Float32Array(n); y = new Float32Array(n); vx = new Float32Array(n); vy = new Float32Array(n); life = new Float32Array(n);
+    colour = new Array(n);
+    for (let i = 0; i < n; i++) { spawn(i); life[i] *= Math.random(); }
   };
   fit();
 
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let visible = true, raf = 0, ready = false;
-  const draw = (ms: number) => {
-    gl.uniform1f(uTime, 30 + ms / 1000);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  let visible = true, raf = 0, ready = false, last = 0;
+  const step = () => {
+    // Old trails melt back into the painting.
+    ctx.globalAlpha = 0.14;
+    ctx.drawImage(base, 0, 0);
+    ctx.globalAlpha = 0.75;
+    ctx.lineWidth = 1.2 * scale; ctx.lineCap = "round";
+    const v = 0.9 * speed * scale;
+    for (let i = 0; i < n; i++) {
+      if (--life[i] <= 0) { spawn(i); continue; }
+      const c = Math.min(field.rows - 1, Math.floor(y[i] / field.cell)) * field.cols + Math.min(field.cols - 1, Math.floor(x[i] / field.cell));
+      let fx = field.dx[c], fy = field.dy[c];
+      // Strokes have no arrow on them; keep going the way this particle was already going.
+      if (fx * vx[i] + fy * vy[i] < 0) { fx = -fx; fy = -fy; }
+      vx[i] = vx[i] * 0.7 + fx * 0.3; vy[i] = vy[i] * 0.7 + fy * 0.3;
+      const nx = x[i] + vx[i] * v, ny = y[i] + vy[i] * v;
+      if (nx < 0 || ny < 0 || nx >= w || ny >= h) { spawn(i); continue; }
+      ctx.strokeStyle = colour[i];
+      ctx.beginPath(); ctx.moveTo(x[i], y[i]); ctx.lineTo(nx, ny); ctx.stroke();
+      x[i] = nx; y[i] = ny;
+    }
+    ctx.globalAlpha = 1;
     if (!ready) { ready = true; onReady(); }
   };
   const frame = (ms: number) => {
-    if (visible) draw(ms);
+    // About 40 steps a second is enough for slow paint, and kinder to phones.
+    if (visible && ms - last > 24) { step(); last = ms; }
     raf = requestAnimationFrame(frame);
   };
   const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
   io.observe(canvas);
-  if (reduced) draw(0); else raf = requestAnimationFrame(frame);
+  if (reduced) onReady(); else raf = requestAnimationFrame(frame);
 
   let t: ReturnType<typeof setTimeout>;
-  const onResize = () => { clearTimeout(t); t = setTimeout(() => { fit(); if (reduced) draw(0); }, 150); };
+  const onResize = () => { clearTimeout(t); t = setTimeout(fit, 200); };
   window.addEventListener("resize", onResize);
   return () => { cancelAnimationFrame(raf); io.disconnect(); clearTimeout(t); window.removeEventListener("resize", onResize); };
 }
