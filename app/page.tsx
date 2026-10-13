@@ -1,6 +1,6 @@
 import Nav from "@/components/Nav";
 import NightSky from "@/components/NightSky";
-import HeroLightShow from "@/components/Hero";
+import HeroPainting from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
 import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
@@ -16,7 +16,7 @@ export default function Home() {
       <Nav />
 
       <header className="hero" id="top">
-        <HeroLightShow />
+        <HeroPainting />
         <div className="wrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={400} height={400} />
@@ -162,6 +162,7 @@ export default function Home() {
 
         <p className="sky-note wrap">
           The stars behind this page are the real sky over Jabalpur on the night I was born.
+          The paintings are by Van Gogh, Whistler and Caspar David Friedrich, all in the public domain.
         </p>
       </main>
     </>

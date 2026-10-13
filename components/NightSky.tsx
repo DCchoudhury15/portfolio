@@ -5,10 +5,10 @@ import sky from "@/lib/sky.json";
 
 /**
  * The real sky over Jabalpur at 9 pm on the night I was born, drawn like a long-exposure photo
- * looking north, towards the Pole Star.
+ * looking south-east, where the core of the Milky Way was rising over Scorpius.
  *
- * The sky spins about the Pole Star the way the real one does, sped up like a time-lapse: every
- * star circles it, the brighter ones leaving short trails.
+ * The sky turns the way the real one does, sped up like a time-lapse video: stars glide from left
+ * to right over the hills, and now and then a shooting star crosses.
  * The sky glow, the Milky Way and the faint stars are drawn by a WebGL shader; the named stars,
  * planets and hills go on a 2D canvas above it. Scrolling tilts the view from high overhead down
  * to the horizon, and the pointer (or tilting a phone) moves it slightly. Hovering a star makes
@@ -19,14 +19,12 @@ type Body = { name: string; az: number; alt: number; mag: number };
 type Vec = [number, number, number]; // east, north, up
 
 const D = Math.PI / 180;
-const VIEW_AZ = 0; // facing north, so the whole sky is seen spinning round the Pole Star
+const VIEW_AZ = 150; // facing south-south-east
 const VIEW_ALT = 30;
 const H_FOV = 92; // degrees across the screen
 const EXTRA_W = 1.22; // scene is wider than the screen for pointer parallax
 const EXTRA_H = 1.7; // and taller, so scrolling can tilt the view
-const SPIN = 3 * D; // how far the sky turns each second: a time-lapse, though it always stays night
-const TRAIL = 14 * D; // brighter stars leave a curved trail this far back along their circle, as in a long exposure
-const TRAIL_STEPS = 8;
+const SPIN = 1 * D; // how far the sky turns each second, about the pace of a night-sky time-lapse video
 
 const dot = (a: Vec, b: Vec) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const cross = (a: Vec, b: Vec): Vec => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
@@ -56,11 +54,10 @@ function starColour(bv: number): [number, number, number] {
   return stops[stops.length - 1][1];
 }
 
-// True when the pointer is over open sky rather than over text, cards or the hero.
-const OPEN_TAGS = new Set(["HTML", "BODY", "MAIN"]);
-const OPEN_CLASSES = ["block", "contact", "wrap", "head", "records", "sessions", "rig", "notes", "onrepeat", "sky-note"];
+// True when the pointer is over open sky: anywhere except text, links, buttons and pictures.
+const SOLID_TAGS = new Set(["P", "H1", "H2", "H3", "H4", "LI", "SPAN", "CODE", "SMALL", "B", "EM", "DT", "DD", "IMG", "svg", "path"]);
 const overOpenSky = (el: Element | null) =>
-  !!el && !el.closest(".hero, .nav") && (OPEN_TAGS.has(el.tagName) || OPEN_CLASSES.some((c) => el.classList.contains(c)));
+  !!el && !SOLID_TAGS.has(el.tagName) && !el.closest(".nav, a, button, input, .sleeve, .menu");
 
 // Atmosphere: stars fade and redden as they sink towards the horizon.
 const extinction = (alt: number) => Math.pow(10, -0.4 * 0.25 * (1 / Math.max(Math.sin(Math.max(alt, 0.5) * D), 0.05) - 1));
@@ -143,9 +140,10 @@ void main(){
     vec3 g = vec3(dot(G0, e), dot(G1, e), dot(G2, e));
     float l = mod(atan(g.y, g.x)/D + 360.0, 360.0), b = asin(clamp(g.z, -1.0, 1.0))/D;
     float m = milkyWay(l, b), ext = extinction(alt);
-    float mw = 1.8*m*min(1.0, sqrt(ext)*1.5)*(alt < 4.0 ? max(0.0, alt + 1.0)/5.0 : 1.0);
+    float mw = 2.0*m*min(1.0, sqrt(ext)*1.5)*(alt < 4.0 ? max(0.0, alt + 1.0)/5.0 : 1.0);
     float warm = exp(-sq((l > 180.0 ? l - 360.0 : l)/25.0));
-    col += mw*vec3(52.0 + 22.0*warm, 54.0 + 12.0*warm, 66.0 - 6.0*warm);
+    // Violet along the band and a warm, golden core, as the Milky Way looks in long exposures.
+    col += mw*mix(vec3(56.0, 50.0, 80.0), vec3(98.0, 82.0, 60.0), warm);
     // Thousands of stars too faint to name, crowding towards the Milky Way. Each cell of an
     // equal-area grid on the celestial sphere holds at most one, so they turn with the sky.
     vec2 cell = vec2(floor(fract(ra/TAU)*uCell.x), floor((sd + 1.0)/uCell.y));
@@ -268,8 +266,6 @@ export default function NightSky() {
 
     const draw = (ms: number, offX: number, offY: number, angle: number, twinkle: boolean) => {
       const ct = Math.cos(angle), st = Math.sin(angle);
-      // Points back along each star's circle round the pole, for the trails.
-      const back = twinkle ? Array.from({ length: TRAIL_STEPS }, (_, j) => { const t = angle - (TRAIL * (j + 1)) / TRAIL_STEPS; return [Math.cos(t), Math.sin(t)]; }) : [];
       if (shader) {
         const lst = (((sky.lst * D + angle) % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
         shader({ ox: ox - offX, oy: oy - offY, s, dpr, lst, cell, moon: turned(MOON, ct, st) });
@@ -312,20 +308,6 @@ export default function NightSky() {
             ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(x, y, r * 7, 0, Math.PI * 2); ctx.fill();
           }
         }
-        // A curved trail back along the star's circle round the pole, fading out behind it.
-        if (back.length && !star.planet && star.mag < 4.2) {
-          ctx.lineWidth = Math.max(0.8, r * 0.8); ctx.lineCap = "round";
-          let px = x, py = y;
-          for (let j = 0; j < back.length; j++) {
-            const b = turned(star, back[j][0], back[j][1]), Zb = dot(b, f);
-            if (Zb < -0.3) break;
-            const kb = (2 * s) / (1 + Zb);
-            const bx = ox - offX + kb * dot(b, right), by = oy - offY - kb * dot(b, up);
-            ctx.strokeStyle = `rgba(${c},${a * 0.5 * (1 - j / back.length)})`;
-            ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(bx, by); ctx.stroke();
-            px = bx; py = by;
-          }
-        }
         let shine = a;
         if (twinkle && !star.planet && star.mag < 3.4) {
           const amp = 0.12 + 0.35 * (1 - Math.sin(Math.max(alt, 1) * D));
@@ -336,6 +318,19 @@ export default function NightSky() {
         else { ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2); ctx.fill(); }
         sx[i] = x; sy[i] = y; sr[i] = r; sa[i] = a; sc[i] = c;
         shown.push(i);
+      }
+
+      // Shooting stars: a bright head with a fading tail, crossing in under a second.
+      for (const m of meteors) {
+        const life = (ms - m.t0) / m.dur;
+        if (life < 0 || life > 1) continue;
+        const fade = Math.sin(Math.PI * life);
+        const hx = m.x + m.dx * m.len * life * 1.6, hy = m.y + m.dy * m.len * life * 1.6;
+        const tx2 = hx - m.dx * m.len * fade, ty2 = hy - m.dy * m.len * fade;
+        const tail = ctx.createLinearGradient(tx2, ty2, hx, hy);
+        tail.addColorStop(0, "rgba(220,230,255,0)"); tail.addColorStop(1, `rgba(240,244,255,${0.85 * fade})`);
+        ctx.strokeStyle = tail; ctx.lineWidth = 1.6; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(tx2, ty2); ctx.lineTo(hx, hy); ctx.stroke();
       }
 
       // The hills, with the faint orange glow of a town behind them. The glow runs down behind
@@ -362,6 +357,8 @@ export default function NightSky() {
     };
     // Hover: find the star nearest the pointer, favouring brighter ones.
     let hover = -1;
+    // Where the mouse rests. The sky keeps turning under it, so the star beneath is picked every frame.
+    let aimX = 0, aimY = 0, aimOn = false, aimSeen = false;
     const hot = new Map<number, number>(); // star index -> how lit up it is, 0..1
     const nearestStar = (px: number, py: number, reach: number) => {
       let best = reach, found = -1;
@@ -374,7 +371,7 @@ export default function NightSky() {
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType === "touch") return; // fingers tap stars instead; tilt moves the sky
       tx = (e.clientX / w - 0.5) * 2; ty = (e.clientY / h - 0.5) * 2;
-      hover = overOpenSky(e.target as Element) ? nearestStar(e.clientX, e.clientY, 22) : -1;
+      aimX = e.clientX; aimY = e.clientY; aimSeen = true; aimOn = overOpenSky(e.target as Element);
     };
     // On a phone, tapping open sky lights up the nearest star for a moment.
     let tapTimer: ReturnType<typeof setTimeout> | undefined;
@@ -417,6 +414,9 @@ export default function NightSky() {
     };
 
     let raf = 0, lastFrame = 0, start = NaN;
+    // Shooting stars, in screen coordinates; a new one every few seconds.
+    let meteors: { x: number; y: number; dx: number; dy: number; len: number; t0: number; dur: number }[] = [];
+    let nextMeteor = 2500;
     const frame = (ms: number) => {
       if (isNaN(start)) start = ms;
       const rg = range();
@@ -429,8 +429,15 @@ export default function NightSky() {
       // tilting a phone moves the sky a little further.
       const offX = rg.x + cx * Math.min(touch ? 34 : 20, rg.x);
       const offY = scroll * rg.y + cy * Math.min(touch ? 34 : 30, rg.y * 0.05);
+      if (aimOn) hover = nearestStar(aimX, aimY, 30);
       if (hover >= 0) { const e = hot.get(hover) ?? 0; hot.set(hover, e + (1 - e) * (1 - Math.pow(0.82, dt))); }
       hot.forEach((e, n) => { if (n !== hover) { e *= Math.pow(0.9, dt); if (e < 0.02) hot.delete(n); else hot.set(n, e); } });
+      if (ms - start > nextMeteor) {
+        const a = (20 + Math.random() * 40) * D * (Math.random() < 0.5 ? 1 : -1);
+        meteors = meteors.filter((m) => ms - m.t0 < m.dur);
+        meteors.push({ x: w * (0.1 + 0.8 * Math.random()), y: h * (0.05 + 0.45 * Math.random()), dx: Math.sin(a), dy: Math.cos(a) * 0.6, len: 90 + Math.random() * 160, t0: ms, dur: 500 + Math.random() * 600 });
+        nextMeteor = ms - start + 3000 + Math.random() * 7000;
+      }
       draw(ms, offX, offY, ((ms - start) / 1000) * SPIN, true);
       raf = requestAnimationFrame(frame);
     };
@@ -445,8 +452,12 @@ export default function NightSky() {
     readScroll();
     if (reduced) still(); else raf = requestAnimationFrame(frame);
 
-    const onScroll = () => { hover = -1; readScroll(); if (reduced) still(); };
-    const onLeaveWindow = (e: MouseEvent) => { if (!e.relatedTarget) hover = -1; };
+    const onScroll = () => {
+      hover = -1; readScroll();
+      if (aimSeen) aimOn = overOpenSky(document.elementFromPoint(aimX, aimY));
+      if (reduced) still();
+    };
+    const onLeaveWindow = (e: MouseEvent) => { if (!e.relatedTarget) { hover = -1; aimOn = aimSeen = false; } };
     window.addEventListener("scroll", onScroll, { passive: true });
     if (!reduced) {
       window.addEventListener("pointermove", onPointer, { passive: true });

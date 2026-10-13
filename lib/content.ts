@@ -153,7 +153,7 @@ export const sessions: Session[] = [
 export const alsoContributed = "kcl-lang, Knative, Kuadrant, PipeCD, skrub, skore and pgmpy";
 
 export const rig = [
-  { group: "Languages", items: "Go, C++, Rust, Python, TypeScript, SQL, Bash" },
+  { group: "Languages", items: "Go, C++, Python, TypeScript, SQL, Bash" },
   { group: "Observability", items: "OpenTelemetry, Jaeger, Prometheus, SigNoz" },
   { group: "Infrastructure", items: "Docker, Kubernetes, Helm" },
   { group: "Build & HPC", items: "Spack, EESSI, conda" },
