@@ -70,7 +70,7 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
     life[i] = 40 + Math.random() * 120;
     const o = (Math.floor(y[i]) * w + Math.floor(x[i])) * 4;
     // A shade brighter than the paint underneath, so the moving strokes show without hiding it.
-    colour[i] = `rgb(${Math.min(255, pixels[o] * 1.06)},${Math.min(255, pixels[o + 1] * 1.06)},${Math.min(255, pixels[o + 2] * 1.06)})`;
+    colour[i] = `rgb(${Math.min(255, pixels[o] * 1.09)},${Math.min(255, pixels[o + 1] * 1.09)},${Math.min(255, pixels[o + 2] * 1.09)})`;
   };
 
   // Size to the box, crop the painting to cover it, and read its strokes.
@@ -86,7 +86,7 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
     pixels = bctx.getImageData(0, 0, w, h).data;
     field = strokeField(pixels, w, h, Math.max(3, Math.round(4 * scale)));
     ctx.drawImage(base, 0, 0);
-    n = Math.min(3500, Math.round((w * h) / (150 * scale * scale)));
+    n = Math.min(4200, Math.round((w * h) / (120 * scale * scale)));
     x = new Float32Array(n); y = new Float32Array(n); vx = new Float32Array(n); vy = new Float32Array(n); life = new Float32Array(n);
     colour = new Array(n);
     for (let i = 0; i < n; i++) { spawn(i); life[i] *= Math.random(); }
@@ -96,10 +96,10 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
   let visible = true, raf = 0, ready = false, last = 0;
   const step = () => {
     // Old trails melt back into the painting.
-    ctx.globalAlpha = 0.14;
+    ctx.globalAlpha = 0.09;
     ctx.drawImage(base, 0, 0);
-    ctx.globalAlpha = 0.75;
-    ctx.lineWidth = 1.2 * scale; ctx.lineCap = "round";
+    ctx.globalAlpha = 0.82;
+    ctx.lineWidth = 1.4 * scale; ctx.lineCap = "round";
     const v = 0.9 * speed * scale;
     for (let i = 0; i < n; i++) {
       if (--life[i] <= 0) { spawn(i); continue; }
