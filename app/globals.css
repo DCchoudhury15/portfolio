@@ -56,7 +56,7 @@ a { color: inherit; }
 .kicker .place:hover { color: var(--gold); border-color: var(--gold); }
 .hero .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 56px; }
 .hero .wrap > * { grid-column: 1; }
-.hero .hero-photo { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-top: 10px; width: clamp(200px, 23vw, 330px); height: auto; aspect-ratio: 3 / 4; object-fit: cover; -webkit-mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); mask-composite: intersect; }
+.hero .hero-photo { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-top: 10px; width: clamp(220px, 25vw, 360px); height: auto; aspect-ratio: 720 / 758; object-fit: contain; -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 98%); mask-image: linear-gradient(to bottom, #000 62%, transparent 98%); filter: drop-shadow(0 0 24px rgba(5,5,9,.55)); }
 .hero h1 { margin: 0; font: 400 clamp(58px, 11.5vw, 168px)/.9 var(--display); letter-spacing: -.02em; text-wrap: balance; }
 .hero h1 em { font-style: normal; color: var(--gold); }
 /* Beside the photo: size the name to the column left over so "Choudhury" never runs under the photo. */
@@ -227,7 +227,7 @@ main { overflow-x: clip; }
   /* Phones: the photo large and centred on its own row, everything else full width below. */
   .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 84px 40px; }
   .hero .wrap > * { grid-column: 1; }
-  .hero .hero-photo { grid-row: auto; justify-self: center; width: min(60vw, 260px); margin: 0; }
+  .hero .hero-photo { grid-row: auto; justify-self: start; width: min(44vw, 180px); margin: 0; }
   .hero .kicker { flex-direction: column; gap: 4px; }
 
   /* Projects: a small square cover beside the title, like a track in a music app,

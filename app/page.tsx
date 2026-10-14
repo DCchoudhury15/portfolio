@@ -19,7 +19,7 @@ export default function Home() {
         <HeroPainting />
         <div className="wrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={300} height={400} />
+          <img className="hero-photo" src="/me.webp" alt="Divyanshu Choudhury" width={720} height={758} />
           <div className="kicker ui">
             <b>{profile.role}</b>
             <a className="place" href={profile.locationMap} {...ext} title="Jabalpur on Google Maps">{profile.location}</a>
