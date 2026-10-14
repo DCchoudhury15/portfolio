@@ -4,7 +4,7 @@ import HeroPainting from "@/components/Hero";
 import Sleeve from "@/components/Sleeve";
 import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
-import Socials from "@/components/Socials";
+import Socials, { Icon } from "@/components/Socials";
 import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
 
 const ext = { target: "_blank", rel: "noopener" } as const;
@@ -19,7 +19,7 @@ export default function Home() {
         <HeroPainting />
         <div className="wrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={400} height={400} />
+          <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={300} height={400} />
           <div className="kicker ui">
             <b>{profile.role}</b>
             <span>{profile.location}</span>
@@ -158,6 +158,14 @@ export default function Home() {
           <h2 id="listening-h">Who I&apos;m listening to this month</h2>
           <span className="swipe" aria-hidden="true">Swipe →</span>
           <TopArtists />
+          {profile.spotifyBlend && (
+            <div className="blend">
+              <a className="btn ghost" href={profile.spotifyBlend} target="_blank" rel="noopener noreferrer">
+                <Icon name="spotify" /> Make a Blend with me
+              </a>
+              <p>Opens Spotify and mixes your taste with mine into one shared playlist.</p>
+            </div>
+          )}
         </section>
 
         <p className="sky-note wrap">

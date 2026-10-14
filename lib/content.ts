@@ -10,6 +10,8 @@ export const profile = {
   x: "https://x.com/Divyanscpu15",
   instagram: "https://www.instagram.com/ch.divyanshu/",
   spotify: "https://open.spotify.com/user/31xuzvnbhcvlh6ratn7t4dbb6yka",
+  // A Blend invite link from the Spotify app (Create Blend > Invite > Copy link). The button stays hidden while empty.
+  spotifyBlend: "https://open.spotify.com/blend/taste-match/af79d88e9b4597a4?si=DnocdealSFa8h5Ig-ZKp2Q&fallback=getapphere",
   discord: "dj_choudhury",
   codolio: "https://codolio.com/profile/HSTFfsyv",
 };
