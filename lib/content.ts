@@ -4,6 +4,7 @@ export const profile = {
   name: "Divyanshu Choudhury",
   role: "Systems & DevOps engineer",
   location: "Jabalpur, India",
+  locationMap: "https://www.google.com/maps/place/Jabalpur,+Madhya+Pradesh,+India",
   email: "divyanshuchoudhury51@gmail.com",
   github: "https://github.com/DCchoudhury15",
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
@@ -102,52 +103,52 @@ export type Session = {
   name: string;
   lang: string;
   total: number;
-  prs: { repo: string; n: number; title: string; date: string }[];
+  prs: { repo: string; n: number; commit: string; title: string; date: string }[];
 };
 
 // Merged pull requests, verified against the GitHub API.
 export const sessions: Session[] = [
-  { name: "CPython", lang: "C · Python", total: 1, prs: [{ repo: "python/cpython", n: 143426, title: "Fix free-threaded build detection in the sampling profiler", date: "Jan 2026" }] },
+  { name: "CPython", lang: "C · Python", total: 1, prs: [{ repo: "python/cpython", n: 143426, commit: "5f57f6970bdea45cc2b192d612bfd8199f51491e", title: "Fix free-threaded build detection in the sampling profiler", date: "Jan 2026" }] },
   {
     name: "OpenTelemetry C++", lang: "C++", total: 2,
     prs: [
-      { repo: "open-telemetry/opentelemetry-cpp", n: 3966, title: "File configuration: composable samplers", date: "Apr 2026" },
-      { repo: "open-telemetry/opentelemetry-cpp", n: 4186, title: "Honor Retry-After when retrying OTLP/HTTP exports", date: "Aug 2026" },
+      { repo: "open-telemetry/opentelemetry-cpp", n: 3966, commit: "62354e09b4ca7fd22775804bc6aac78dc8cf108b", title: "File configuration: composable samplers", date: "Apr 2026" },
+      { repo: "open-telemetry/opentelemetry-cpp", n: 4186, commit: "43b656de87e5534c05bf202bf1a843ba5ba24d34", title: "Honor Retry-After when retrying OTLP/HTTP exports", date: "Aug 2026" },
     ],
   },
   {
     name: "OTel Ecosystem Explorer", lang: "TypeScript", total: 5,
     prs: [
-      { repo: "open-telemetry/opentelemetry-ecosystem-explorer", n: 422, title: "Global Java agent config explorer with a declarative toggle", date: "May 2026" },
-      { repo: "open-telemetry/opentelemetry-ecosystem-explorer", n: 399, title: "Revamped collector stability tab and distribution availability", date: "Jun 2026" },
+      { repo: "open-telemetry/opentelemetry-ecosystem-explorer", n: 422, commit: "d0b32e53431494896468504f893b8c79fb024eb3", title: "Global Java agent config explorer with a declarative toggle", date: "May 2026" },
+      { repo: "open-telemetry/opentelemetry-ecosystem-explorer", n: 399, commit: "ad8d1d4d960143c825b7e2b2122ad4f06bd1127d", title: "Revamped collector stability tab and distribution availability", date: "Jun 2026" },
     ],
   },
   {
     name: "Jaeger", lang: "TypeScript · Helm", total: 2,
     prs: [
-      { repo: "jaegertracing/jaeger-ui", n: 3259, title: "A visual cue for synthetic OpenTelemetry attributes", date: "Jan 2026" },
-      { repo: "jaegertracing/helm-charts", n: 713, title: "Fix broken template references in es-maintenance and rollover", date: "Jan 2026" },
+      { repo: "jaegertracing/jaeger-ui", n: 3259, commit: "0dbd3b1656d22ed3e120d7ba2a589151dfc11bef", title: "A visual cue for synthetic OpenTelemetry attributes", date: "Jan 2026" },
+      { repo: "jaegertracing/helm-charts", n: 713, commit: "ff333174ee38890f87c242ccfc798f74085c1b07", title: "Fix broken template references in es-maintenance and rollover", date: "Jan 2026" },
     ],
   },
   {
     name: "conda / rattler", lang: "Rust", total: 4,
     prs: [
-      { repo: "conda/rattler", n: 1968, title: "Support track_features in match-spec brackets", date: "Jan 2026" },
-      { repo: "conda/rattler", n: 1899, title: "A dedicated error type for write_repodata", date: "Jan 2026" },
+      { repo: "conda/rattler", n: 1968, commit: "68ab94b08fa10f8d3524433b44f4aa8bb8b84144", title: "Support track_features in match-spec brackets", date: "Jan 2026" },
+      { repo: "conda/rattler", n: 1899, commit: "6d1c410e5feecd18d174dd7c7c8ff5acdbb98bc6", title: "A dedicated error type for write_repodata", date: "Jan 2026" },
     ],
   },
   {
     name: "sktime", lang: "Python", total: 4,
     prs: [
-      { repo: "sktime/sktime", n: 9234, title: "Stop Prophet crashing on stan_backend", date: "Apr 2026" },
-      { repo: "sktime/sktime", n: 9200, title: "ColumnwiseTransformer sklearn support", date: "Jan 2026" },
+      { repo: "sktime/sktime", n: 9234, commit: "41dcea8fc4d2b64e9adbbc3871959d94baa3c731", title: "Stop Prophet crashing on stan_backend", date: "Apr 2026" },
+      { repo: "sktime/sktime", n: 9200, commit: "b5744410ca5d4b2bf4151dbe0f6201a530cd7d2c", title: "ColumnwiseTransformer sklearn support", date: "Jan 2026" },
     ],
   },
   {
     name: "OpenKruise Agents", lang: "Go · Kubernetes", total: 2,
     prs: [
-      { repo: "openkruise/agents", n: 65, title: "Metrics for sandbox creation latency and success rate", date: "Jan 2026" },
-      { repo: "openkruise/agents", n: 61, title: "An enable-pprof flag for the sandbox manager", date: "Jan 2026" },
+      { repo: "openkruise/agents", n: 65, commit: "cadea0b7c06460703b103a5cb7adac92ee096df8", title: "Metrics for sandbox creation latency and success rate", date: "Jan 2026" },
+      { repo: "openkruise/agents", n: 61, commit: "c08e692d2f83618f1f7025ab7a3cba803cb4b1ff", title: "An enable-pprof flag for the sandbox manager", date: "Jan 2026" },
     ],
   },
 ];

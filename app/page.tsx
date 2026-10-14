@@ -22,7 +22,7 @@ export default function Home() {
           <img className="hero-photo" src="/me.jpg" alt="Divyanshu Choudhury" width={300} height={400} />
           <div className="kicker ui">
             <b>{profile.role}</b>
-            <span>{profile.location}</span>
+            <a className="place" href={profile.locationMap} {...ext} title="Jabalpur on Google Maps">{profile.location}</a>
           </div>
           <h1>
             Divyanshu<br />
@@ -110,7 +110,7 @@ export default function Home() {
 
           <div className="sessions-title">
             <h3>Open-source contributions · merged upstream</h3>
-            <a href="https://github.com/pulls?q=is%3Apr+author%3ADCchoudhury15+is%3Amerged+-user%3ADCchoudhury15" {...ext}>All 38 merged PRs on GitHub ↗</a>
+            <span className="all-prs">38 merged PRs in all</span>
             <span className="swipe" aria-hidden="true">Swipe →</span>
           </div>
           <div className="sessions">
@@ -121,7 +121,7 @@ export default function Home() {
                 <ul>
                   {s.prs.map((pr) => (
                     <li key={pr.repo + pr.n}>
-                      <a href={`https://github.com/${pr.repo}/pull/${pr.n}`} {...ext}>
+                      <a href={`https://github.com/${pr.repo}/commit/${pr.commit}`} {...ext}>
                         {pr.title}
                         <small>#{pr.n} · {pr.date}</small>
                       </a>

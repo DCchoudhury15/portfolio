@@ -46,15 +46,17 @@ a { color: inherit; }
 /* ---------- Hero ---------- */
 .hero { position: relative; overflow: hidden; min-height: clamp(560px, 92vh, 900px); display: grid; align-items: end; }
 /* The moving pictures are lit onto the sky: dark parts let the stars through and the edges dissolve. */
-.hero .hero-painting { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; object-fit: cover; opacity: .78; -webkit-mask-image: radial-gradient(120% 105% at 62% 40%, #000 45%, transparent 92%), linear-gradient(to bottom, #000 55%, transparent 98%); -webkit-mask-composite: source-in; mask-image: radial-gradient(120% 105% at 62% 40%, #000 45%, transparent 92%), linear-gradient(to bottom, #000 55%, transparent 98%); mask-composite: intersect; animation: drift 60s ease-in-out infinite alternate; }
+.hero .hero-painting { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; object-fit: cover; opacity: .9; -webkit-mask-image: radial-gradient(120% 105% at 62% 40%, #000 45%, transparent 92%), linear-gradient(to bottom, #000 55%, transparent 98%); -webkit-mask-composite: source-in; mask-image: radial-gradient(120% 105% at 62% 40%, #000 45%, transparent 92%), linear-gradient(to bottom, #000 55%, transparent 98%); mask-composite: intersect; animation: drift 60s ease-in-out infinite alternate; }
 .hero::before { content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(90deg, rgba(11,10,13,.72), rgba(11,10,13,.35) 45%, rgba(11,10,13,0) 68%); -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent); mask-image: linear-gradient(180deg, #000 60%, transparent); }
 .hero .wrap { position: relative; z-index: 2; }
 .hero .wrap { width: 100%; padding-block: 140px 64px; display: grid; gap: 28px; }
 .kicker { font: 500 14px/1.4 var(--ui); letter-spacing: .04em; color: var(--text); opacity: .85; display: flex; flex-wrap: wrap; gap: 6px 18px; }
 .kicker b { color: var(--gold); font-weight: 600; }
+.kicker .place { color: inherit; text-decoration: none; border-bottom: 1px solid rgba(236,228,214,.35); transition: color .2s, border-color .2s; }
+.kicker .place:hover { color: var(--gold); border-color: var(--gold); }
 .hero .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 56px; }
 .hero .wrap > * { grid-column: 1; }
-.hero .hero-photo { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-top: 10px; width: clamp(160px, 18vw, 250px); height: auto; aspect-ratio: 3 / 4; object-fit: cover; -webkit-mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); mask-composite: intersect; }
+.hero .hero-photo { grid-column: 2; grid-row: 2 / span 3; align-self: start; margin-top: 10px; width: clamp(200px, 23vw, 330px); height: auto; aspect-ratio: 3 / 4; object-fit: cover; -webkit-mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); -webkit-mask-composite: source-in; mask-image: linear-gradient(to right, transparent, rgba(0,0,0,.35) 5%, rgba(0,0,0,.8) 10%, #000 15%, #000 85%, rgba(0,0,0,.8) 90%, rgba(0,0,0,.35) 95%, transparent), linear-gradient(to bottom, transparent, rgba(0,0,0,.35) 4%, rgba(0,0,0,.8) 8%, #000 12%, #000 82%, rgba(0,0,0,.8) 88%, rgba(0,0,0,.35) 94%, transparent); mask-composite: intersect; }
 .hero h1 { margin: 0; font: 400 clamp(58px, 11.5vw, 168px)/.9 var(--display); letter-spacing: -.02em; text-wrap: balance; }
 .hero h1 em { font-style: normal; color: var(--gold); }
 /* Beside the photo: size the name to the column left over so "Choudhury" never runs under the photo. */
@@ -118,6 +120,7 @@ main { overflow-x: clip; }
 .sessions-title { margin: 72px 0 28px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px 24px; }
 .sessions-title h3 { margin: 0; font: 400 clamp(30px, 3.6vw, 44px)/1 var(--display); }
 .sessions-title a { font: 600 14px/1 var(--ui); text-decoration: none; border-bottom: 1px solid var(--gold); padding-bottom: 4px; }
+.sessions-title .all-prs { font: 600 14px/1 var(--ui); color: var(--muted); }
 .sessions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
 .session { padding: 24px 0; display: grid; gap: 12px; align-content: start; }
 .session header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
@@ -174,7 +177,7 @@ main { overflow-x: clip; }
 .mail { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 12px; padding: 10px 10px 10px 24px; border-radius: 999px; border: 1px solid var(--line); background: none; }
 .mail code { font: 500 clamp(15px, 2vw, 19px)/1.3 var(--ui); user-select: all; overflow-wrap: anywhere; }
 .socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; }
-.socials a, .socials button { position: relative; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--muted); cursor: pointer; transition: color .2s, border-color .2s, transform .2s; }
+.socials a, .socials button { position: relative; display: grid; place-items: center; width: 48px; height: 48px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.06); background: rgba(5,5,9,.55); color: #5d5868; cursor: pointer; transition: color .2s, border-color .2s, transform .2s; }
 .socials a:hover, .socials button:hover { color: var(--gold); border-color: var(--gold); transform: translateY(-2px); }
 .socials .copied { position: absolute; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); font: 500 12px/1 var(--ui); color: var(--gold); white-space: nowrap; }
 
@@ -221,25 +224,22 @@ main { overflow-x: clip; }
   .hero { min-height: 100svh; }
   .hero .wrap { padding-block: 120px 48px; gap: 22px; }
   .hero .lede { font-size: 17px; }
-  /* Phones: photo top right with the role line beside it; name and text full width below. */
-  .hero .wrap { grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; }
-  .hero .wrap > * { grid-column: 1 / -1; }
-  .hero .kicker { grid-column: 1; grid-row: 1; align-self: end; flex-direction: column; gap: 4px; }
-  .hero .hero-photo { grid-column: 2; grid-row: 1; width: 90px; align-self: start; margin-top: 0; }
+  /* Phones: the photo large and centred on its own row, everything else full width below. */
+  .hero .wrap { grid-template-columns: minmax(0, 1fr); padding-block: 84px 40px; }
+  .hero .wrap > * { grid-column: 1; }
+  .hero .hero-photo { grid-row: auto; justify-self: center; width: min(60vw, 260px); margin: 0; }
+  .hero .kicker { flex-direction: column; gap: 4px; }
 
   /* Projects: a small square cover beside the title, like a track in a music app,
      with the description and links running full width underneath. */
-  .record, .record:nth-child(even) { grid-template-columns: 104px minmax(0, 1fr); column-gap: 16px; row-gap: 4px; align-items: center; }
-  .record .info { display: contents; }
-  .record .sleeve, .record:nth-child(even) .sleeve { order: 0; grid-column: 1; grid-row: 1 / span 3; align-self: start; aspect-ratio: 4 / 3; }
-  .sleeve img, .sleeve canvas { inset: 0; width: 100%; height: 100%; }
-  .record .no { grid-column: 2; grid-row: 1; align-self: end; font-size: 15px; }
-  .record h3 { grid-column: 2; grid-row: 2; font-size: 30px; }
-  .record .hook { grid-column: 2; grid-row: 3; align-self: start; font-size: 16px; line-height: 1.35; }
-  .record .desc, .record .stack, .record .links { grid-column: 1 / -1; }
-  .record .desc { margin-top: 16px; }
-  .record .stack { margin-top: 10px; }
-  .record .links { margin-top: 12px; }
+  /* Projects: the painting full width on top, then the text. */
+  .record, .record:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .record .sleeve, .record:nth-child(even) .sleeve { order: 0; width: 100%; }
+  .sleeve img, .sleeve canvas { inset: -8%; width: 116%; height: 116%; }
+  .record .info { gap: 12px; }
+  .record .no { font-size: 15px; }
+  .record h3 { font-size: 34px; }
+  .record .hook { font-size: 17px; line-height: 1.35; }
 
   /* Open source and On repeat become rows you swipe sideways. */
   .swipe { display: block; font: 500 12px/1 var(--ui); letter-spacing: .06em; color: var(--muted); }
