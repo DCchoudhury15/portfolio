@@ -270,11 +270,11 @@ main { overflow-x: clip; }
   .repeat { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 /* Phones: shrink the name on the narrowest screens so "Choudhury" keeps its margin,
-   and fit all six social icons on one row. */
+   and fit all seven social icons on one row. */
 @media (max-width: 600px) {
   .hero h1 { font-size: min(58px, calc((100vw - 40px) / 5.4)); }
-  .socials { gap: 10px; flex-wrap: nowrap; }
-  .socials a, .socials button { width: clamp(38px, calc((100vw - 90px) / 6), 48px); height: auto; aspect-ratio: 1; }
+  .socials { gap: 6px; flex-wrap: nowrap; }
+  .socials a, .socials button { width: clamp(32px, calc((100vw - 76px) / 7), 48px); height: auto; aspect-ratio: 1; }
 }
 /* Large screens: let the page use more of the width. */
 @media (min-width: 1800px) { .wrap { max-width: 1400px; } }

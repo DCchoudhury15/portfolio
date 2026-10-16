@@ -7,6 +7,7 @@ export const profile = {
   locationMap: "https://www.google.com/maps/place/Jabalpur,+Madhya+Pradesh,+India",
   email: "divyanshuchoudhury51@gmail.com",
   github: "https://github.com/DCchoudhury15",
+  gitlab: "https://gitlab.com/divyanshuchoudhury51",
   linkedin: "https://www.linkedin.com/in/divyanshu-choudhury",
   x: "https://x.com/Divyanscpu15",
   instagram: "https://www.instagram.com/ch.divyanshu/",
