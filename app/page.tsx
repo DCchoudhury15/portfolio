@@ -155,7 +155,7 @@ export default function Home() {
 
         <section className="listening wrap" id="listening" aria-labelledby="listening-h">
           <span className="side">Outside of work</span>
-          <h2 id="listening-h">Who I&apos;m listening to this month</h2>
+          <h2 id="listening-h">Who I&apos;m listening to nowadays</h2>
           <span className="swipe" aria-hidden="true">Swipe →</span>
           <TopArtists />
           {profile.spotifyBlend && (
