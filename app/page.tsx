@@ -149,7 +149,10 @@ export default function Home() {
           <span className="side">Contact</span>
           <h2 id="contact-h">Let&apos;s work <em>together</em></h2>
           <p>Internships, open-source collaboration, or a good systems problem. My inbox is open.</p>
-          <CopyEmail email={profile.email} />
+          <div className="mails">
+            <CopyEmail email={profile.email} />
+            <CopyEmail email={profile.email2} />
+          </div>
           <Socials />
         </section>
 
