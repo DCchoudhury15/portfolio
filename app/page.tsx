@@ -170,7 +170,7 @@ export default function Home() {
 
         <p className="sky-note wrap">
           The stars behind this page are the real sky over Jabalpur on the night I was born.
-          The paintings are by Van Gogh, Whistler and Caspar David Friedrich, all in the public domain.
+          The paintings are by Van Gogh, Whistler, Atkinson Grimshaw and Caspar David Friedrich, all in the public domain.
         </p>
       </main>
     </>
