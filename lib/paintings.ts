@@ -6,7 +6,7 @@ export type Painting = { src: string; title: string; artist: string; year: strin
 
 export const PAINTINGS: Record<string, Painting> = {
   hero: { src: "/paintings/hero.jpg", title: "Starry Night Over the Rhône", artist: "Vincent van Gogh", year: "1888", focus: "50% 40%", strokes: 0.1 },
-  agentward: { src: "/paintings/agentward.jpg", title: "The Starry Night", artist: "Vincent van Gogh", year: "1889", focus: "55% 40%" },
+  taintward: { src: "/paintings/taintward.jpg", title: "The Starry Night", artist: "Vincent van Gogh", year: "1889", focus: "55% 40%" },
   audio: { src: "/paintings/audio.jpg", title: "Nocturne: Blue and Gold, Old Battersea Bridge", artist: "James McNeill Whistler", year: "c. 1872", focus: "50% 18%", strokes: 0.25 },
   isowatch: { src: "/paintings/isowatch.jpg", title: "Liverpool Quay by Moonlight", artist: "John Atkinson Grimshaw", year: "1887", focus: "50% 55%", strokes: 0.25 },
   chatai: { src: "/paintings/chatai.jpg", title: "Café Terrace at Night", artist: "Vincent van Gogh", year: "1888", focus: "45% 45%", strokes: 0.25 },

@@ -33,17 +33,17 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: "agentward",
+    id: "taintward",
     cat: "DC-001",
     year: "2026",
     no: "01 · flagship",
-    title: "AgentWard",
-    hook: "A GPS tracker for sensitive data inside AI agents.",
-    desc: "AI agents pass data through tools, LLMs and external APIs, and an API key or a customer's address can slip out anywhere along that chain. The AgentRaft paper found this in 57% of the call chains it analysed, but only offline. AgentWard enforces the same formal model live: it detects sensitive fields, carries taint along OpenTelemetry baggage and span links, applies a Rego policy in a sidecar collector, redacts before anything leaves, and records lineage in SigNoz. No LLM sits in the hot path.",
-    stack: ["Python", "Go", "OpenTelemetry", "Rego", "Presidio", "SigNoz"],
+    title: "Taintward",
+    hook: "Lets AI agents use customer data without sending it to the LLM.",
+    desc: "AI agents pass data through tools, LLMs and external APIs, and an SSN or an API key can slip out anywhere along that chain. Taintward follows sensitive data through every tool call using OpenTelemetry baggage. The LLM gets stable placeholders like <PERSON_1>, so the agent still works, and the real values come back for the user. Internal systems get a reversible FF1 token, external APIs and logs get a one-way mask. It ships as a Python SDK for LangChain, LangGraph and the OpenAI Agents SDK, an MCP gateway that can redact, block or audit each tool, and an OpenTelemetry Collector with a Rego policy, plus a signed, tamper-evident evidence log and a compliance report. A 1 KB tool call takes about 8 ms (median) with 0% false alarms on the benchmark, and it runs on Kubernetes through a Helm chart.",
+    stack: ["Python", "Go", "OpenTelemetry", "Rego", "MCP", "Presidio", "Kubernetes"],
     links: [
-      { label: "Live site", href: "https://agentward-alpha.vercel.app" },
-      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/agentward" },
+      { label: "Live site", href: "https://taintward.vercel.app" },
+      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/taintward" },
       { label: "The AgentRaft paper", href: "https://arxiv.org/abs/2603.07557" },
     ],
   },
@@ -187,7 +187,7 @@ export const rig = [
 export const about = [
   "I'm a final-year computer science student at Gyan Ganga Institute of Technology and Sciences in Jabalpur. Most of my time outside classes goes into open source, and I've had pull requests merged into CPython, OpenTelemetry, Jaeger, conda and a few other projects.",
   "This year I took part in Google Summer of Code with INCF, working on the build setup for the EBRAINS software distribution. A lot of it was getting Spack and EESSI to work together, which taught me a lot about compilers, MPI and CI pipelines.",
-  "I'm most interested in DevOps, distributed systems and backend infrastructure. When I'm not working on those, I'm usually doing competitive programming or building side projects like AgentWard.",
+  "I'm most interested in DevOps, distributed systems and backend infrastructure. When I'm not working on those, I'm usually doing competitive programming or building side projects like Taintward.",
 ]
 
 export type Artist = { name: string; url: string; art: string | null };
