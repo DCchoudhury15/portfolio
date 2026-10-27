@@ -121,7 +121,7 @@ export default function Home() {
                 <ul>
                   {s.prs.map((pr) => (
                     <li key={pr.repo + pr.n}>
-                      <a href={`https://github.com/${pr.repo}/commit/${pr.commit}`} {...ext}>
+                      <a href={`https://github.com/${pr.repo}/pull/${pr.n}`} {...ext}>
                         {pr.title}
                         <small>#{pr.n} · {pr.date}</small>
                       </a>

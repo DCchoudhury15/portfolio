@@ -43,7 +43,7 @@ export const projects: Project[] = [
     stack: ["Python", "Go", "OpenTelemetry", "Rego", "MCP", "Presidio", "Kubernetes"],
     links: [
       { label: "Live site", href: "https://taintward.vercel.app" },
-      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/taintward" },
+      { label: "Source", href: "https://github.com/DCchoudhury15/Taintward" },
       { label: "The AgentRaft paper", href: "https://arxiv.org/abs/2603.07557" },
     ],
   },
@@ -58,7 +58,7 @@ export const projects: Project[] = [
     stack: ["Go", "PostgreSQL 18", "OpenTelemetry Collector", "pgx", "Jaeger"],
     links: [
       { label: "Live site", href: "https://isowatch.vercel.app" },
-      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/isowatch" },
+      { label: "Source", href: "https://github.com/DCchoudhury15/isowatch" },
     ],
   },
   {
@@ -72,7 +72,7 @@ export const projects: Project[] = [
     stack: ["PyTorch", "torchaudio", "Modal", "Next.js", "TypeScript"],
     links: [
       { label: "Live demo", href: "https://audiovisualizer-liard.vercel.app" },
-      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/audiovisualizer" },
+      { label: "Source", href: "https://github.com/DCchoudhury15/audiovisualizer" },
     ],
   },
   {
@@ -84,7 +84,7 @@ export const projects: Project[] = [
     hook: "Video meetings with AI agents you design.",
     desc: "Create agents with their own instructions and bring them into live video calls. Built on Stream's video SDK and OpenAI's realtime API, with tRPC and React Query, Drizzle on Neon Postgres, Better Auth, and Inngest for background work after a call.",
     stack: ["Next.js", "tRPC", "Stream Video", "OpenAI Realtime", "Drizzle", "Inngest"],
-    links: [{ label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/chat-ai" }],
+    links: [{ label: "Source", href: "https://github.com/DCchoudhury15/chat-ai" }],
   },
   {
     id: "resumez",
@@ -97,7 +97,7 @@ export const projects: Project[] = [
     stack: ["JavaScript", "Full-stack web"],
     links: [
       { label: "Live demo", href: "https://resumez-zeta.vercel.app" },
-      { label: "Source", href: "https://gitlab.com/divyanshuchoudhury51/resumez" },
+      { label: "Source", href: "https://github.com/DCchoudhury15/resumez" },
     ],
   },
 ];
