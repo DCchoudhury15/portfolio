@@ -158,7 +158,7 @@ void main(){
     vec3 g = vec3(dot(G0, e), dot(G1, e), dot(G2, e));
     float l = mod(atan(g.y, g.x)/D + 360.0, 360.0), b = asin(clamp(g.z, -1.0, 1.0))/D;
     float m = milkyWay(l, b), ext = extinction(alt);
-    float mw = 1.1*m*min(1.0, sqrt(ext)*1.5)*(alt < 4.0 ? max(0.0, alt + 1.0)/5.0 : 1.0);
+    float mw = 0.75*m*min(1.0, sqrt(ext)*1.5)*(alt < 4.0 ? max(0.0, alt + 1.0)/5.0 : 1.0);
     float warm = exp(-sq((l > 180.0 ? l - 360.0 : l)/25.0));
     // Violet along the band and a warm, golden core, as the Milky Way looks in long exposures.
     col += mw*mix(vec3(46.0, 42.0, 66.0), vec3(70.0, 60.0, 46.0), warm);
