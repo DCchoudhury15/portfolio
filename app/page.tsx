@@ -5,11 +5,16 @@ import Sleeve from "@/components/Sleeve";
 import TopArtists from "@/components/TopArtists";
 import CopyEmail from "@/components/CopyEmail";
 import Socials, { Icon } from "@/components/Socials";
-import { about, alsoContributed, gsoc, profile, projects, rig, sessions } from "@/lib/content";
+import { about, gsoc, profile, projects, rig } from "@/lib/content";
+import { contributions } from "@/lib/contributions";
 
 const ext = { target: "_blank", rel: "noopener" } as const;
 
-export default function Home() {
+// Rebuild the page at most once an hour, so newly merged pull requests show up by themselves.
+export const revalidate = 3600;
+
+export default async function Home() {
+  const { sessions, total, also } = await contributions();
   return (
     <>
       <NightSky />
@@ -110,7 +115,7 @@ export default function Home() {
 
           <div className="sessions-title">
             <h3>Open-source contributions · merged upstream</h3>
-            <span className="all-prs">38 merged PRs in all</span>
+            <span className="all-prs">{total} merged PRs in all</span>
             <span className="swipe" aria-hidden="true">Swipe →</span>
           </div>
           <div className="sessions">
@@ -131,7 +136,7 @@ export default function Home() {
               </article>
             ))}
           </div>
-          <p className="also">Also contributed to {alsoContributed}.</p>
+          {also && <p className="also">Also contributed to {also}.</p>}
         </section>
 
         <section className="block wrap" id="rig" aria-labelledby="rig-h">

@@ -123,10 +123,11 @@ export type Session = {
   name: string;
   lang: string;
   total: number;
-  prs: { repo: string; n: number; commit: string; title: string; date: string }[];
+  prs: { repo: string; n: number; commit?: string; title: string; date: string }[];
 };
 
-// Merged pull requests, verified against the GitHub API.
+// Merged pull requests, verified against the GitHub API. The live counts and any newer PRs are
+// filled in by lib/contributions.ts.
 export const sessions: Session[] = [
   { name: "CPython", lang: "C · Python", total: 1, prs: [{ repo: "python/cpython", n: 143426, commit: "5f57f6970bdea45cc2b192d612bfd8199f51491e", title: "Fix free-threaded build detection in the sampling profiler", date: "Jan 2026" }] },
   {
