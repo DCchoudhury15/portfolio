@@ -70,7 +70,10 @@ export const projects: Project[] = [
     hook: "Checks security reports by running them.",
     desc: "Open-source projects now get more security reports than they can read, and many describe bugs that do not exist. Reprobot checks a report by running it. The reporter sends a small repro.yaml with a commit and a proof of concept. Reprobot builds that exact commit with AddressSanitizer or UBSan, using a build profile the maintainers control, runs the proof of concept several times in a locked-down container with no network, and records what really happened: reproduced as claimed, reproduced differently, not reproduced, flaky or timed out. A crash only counts when the sanitizer writes its report to a secret log with a secret exit code, so a pasted report cannot fake one. Reports that crash the same way are grouped, and a Postgres job queue with leases runs them in parallel.",
     stack: ["Go", "Docker", "AddressSanitizer", "PostgreSQL", "pgx"],
-    links: [{ label: "Source", href: "https://github.com/DCchoudhury15/reprobot" }],
+    links: [
+      { label: "Live site", href: "https://reprobot-two.vercel.app" },
+      { label: "Source", href: "https://github.com/DCchoudhury15/reprobot" },
+    ],
   },
   {
     id: "audio",
