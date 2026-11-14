@@ -51,6 +51,10 @@ function strokeField(px: Uint8ClampedArray, w: number, h: number, cell: number):
 // How much of the painting the moving strokes cover: how quickly trails melt back into the
 // painting each step, how wide the strokes are, and how many there are (one per this many pixels).
 const FADE = 0.038, WIDTH = 2.5, AREA_PER_STROKE = 34, MAX_STROKES = 10000;
+// The swirl around the pointer: its radius in CSS pixels (never more than this share of the
+// painting's width), how much the paint is pulled towards the middle as it circles, how much
+// faster it moves there, and the share of new strokes that start inside it.
+const SWIRL_RADIUS = 110, SWIRL_WIDTH_SHARE = 0.24, SWIRL_PULL = 0.15, SWIRL_SPEED = 0.8, SWIRL_SHARE = 0.06;
 
 const FADE_VERT = `attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = vec2(aPos.x*0.5 + 0.5, 0.5 - aPos.y*0.5); gl_Position = vec4(aPos, 0.0, 1.0); }`;
 const FADE_FRAG = `precision mediump float; varying vec2 vUv; uniform sampler2D uTex; uniform float uAlpha;
@@ -103,8 +107,18 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
   let n = 0, x = new Float32Array(0), y = new Float32Array(0), vx = new Float32Array(0), vy = new Float32Array(0), life = new Float32Array(0);
   let col = new Float32Array(0), verts = new Float32Array(0);
 
+  // The pointer, in window coordinates, and where it sits on this canvas (in canvas pixels).
+  // Paint within `reach` of it swirls around it.
+  let pointerX = 0, pointerY = 0, pointerOn = false;
+  let swirlX = 0, swirlY = 0, reach = 0;
+
   const spawn = (i: number) => {
-    x[i] = Math.random() * w; y[i] = Math.random() * h;
+    if (reach && Math.random() < SWIRL_SHARE) {
+      // Some new strokes start near the pointer, so there is always paint there to swirl.
+      const a = Math.random() * Math.PI * 2, d = Math.sqrt(Math.random()) * reach;
+      x[i] = Math.min(w - 1, Math.max(0, swirlX + Math.cos(a) * d));
+      y[i] = Math.min(h - 1, Math.max(0, swirlY + Math.sin(a) * d));
+    } else { x[i] = Math.random() * w; y[i] = Math.random() * h; }
     const angle = Math.random() * Math.PI * 2;
     vx[i] = Math.cos(angle); vy[i] = Math.sin(angle);
     // Strokes live long enough to carry their paint well across the picture.
@@ -158,15 +172,37 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
   const step = () => {
     // Old trails melt back into the painting.
     drawFade(fadeRate);
+    // Find the pointer on this canvas. Read every step, because scrolling moves the painting
+    // under a resting pointer.
+    reach = 0;
+    if (pointerOn) {
+      const box = canvas.getBoundingClientRect();
+      if (box.width && pointerX >= box.left && pointerX <= box.right && pointerY >= box.top && pointerY <= box.bottom) {
+        const scale = w / box.width;
+        swirlX = (pointerX - box.left) * scale; swirlY = (pointerY - box.top) * (h / box.height);
+        reach = Math.min(SWIRL_RADIUS, box.width * SWIRL_WIDTH_SHARE) * scale;
+      }
+    }
     // Move every stroke along the paint and lay it down as a thin quad from where it was.
-    const v = 0.82 * speed, half = strokeWidth / 2;
+    const v0 = 0.82 * speed, half = strokeWidth / 2;
     let m = 0;
     for (let i = 0; i < n; i++) {
       if (--life[i] <= 0) { spawn(i); continue; }
       const c = Math.min(field.rows - 1, Math.floor(y[i] / field.cell)) * field.cols + Math.min(field.cols - 1, Math.floor(x[i] / field.cell));
-      let fx = field.dx[c], fy = field.dy[c];
+      let fx = field.dx[c], fy = field.dy[c], v = v0;
       // Strokes have no arrow on them; keep going the way this particle was already going.
       if (fx * vx[i] + fy * vy[i] < 0) { fx = -fx; fy = -fy; }
+      if (reach) {
+        const ox = x[i] - swirlX, oy = y[i] - swirlY, d = Math.hypot(ox, oy);
+        if (d < reach && d > 1) {
+          // Near the pointer the paint circles it instead, all one way round, drifting slowly
+          // inwards. The swirl is strongest in the middle and gone at its edge.
+          const k = 1 - d / reach, s = k * (2 - k);
+          fx = fx * (1 - s) + (-oy / d - (ox / d) * SWIRL_PULL) * s;
+          fy = fy * (1 - s) + (ox / d - (oy / d) * SWIRL_PULL) * s;
+          v = v0 * (1 + SWIRL_SPEED * s);
+        }
+      }
       vx[i] = vx[i] * 0.7 + fx * 0.3; vy[i] = vy[i] * 0.7 + fy * 0.3;
       const nx = x[i] + vx[i] * v, ny = y[i] + vy[i] * v;
       if (nx < 0 || ny < 0 || nx >= w || ny >= h) { spawn(i); continue; }
@@ -200,5 +236,24 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
   let t: ReturnType<typeof setTimeout>;
   const onResize = () => { clearTimeout(t); t = setTimeout(fit, 200); };
   window.addEventListener("resize", onResize);
-  return () => { cancelAnimationFrame(raf); io.disconnect(); clearTimeout(t); window.removeEventListener("resize", onResize); };
+
+  // Follow the pointer on the window, not the canvas, because text can lie over a painting.
+  // A finger only counts while it is down; a mouse counts until it leaves the page.
+  const onPoint = (e: PointerEvent) => { pointerX = e.clientX; pointerY = e.clientY; pointerOn = true; };
+  const onLift = (e: PointerEvent) => { if (e.pointerType !== "mouse") pointerOn = false; };
+  const onLeave = () => { pointerOn = false; };
+  const root = document.documentElement;
+  if (!reduced) {
+    window.addEventListener("pointermove", onPoint, { passive: true });
+    window.addEventListener("pointerdown", onPoint, { passive: true });
+    window.addEventListener("pointerup", onLift);
+    window.addEventListener("pointercancel", onLift);
+    root.addEventListener("pointerleave", onLeave);
+  }
+  return () => {
+    cancelAnimationFrame(raf); io.disconnect(); clearTimeout(t); window.removeEventListener("resize", onResize);
+    window.removeEventListener("pointermove", onPoint); window.removeEventListener("pointerdown", onPoint);
+    window.removeEventListener("pointerup", onLift); window.removeEventListener("pointercancel", onLift);
+    root.removeEventListener("pointerleave", onLeave);
+  };
 }
