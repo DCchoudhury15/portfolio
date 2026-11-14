@@ -39,7 +39,7 @@ export const projects: Project[] = [
     no: "01 · flagship",
     title: "Taintward",
     hook: "Lets AI agents use customer data without sending it to the LLM.",
-    desc: "AI agents pass data through tools, LLMs and external APIs, and an SSN or an API key can slip out anywhere along that chain. Taintward follows sensitive data through every tool call using OpenTelemetry baggage. The LLM gets stable placeholders like <PERSON_1>, so the agent still works, and the real values come back for the user. Internal systems get a reversible FF1 token, external APIs and logs get a one-way mask. It ships as a Python SDK for LangChain, LangGraph and the OpenAI Agents SDK, an MCP gateway that can redact, block or audit each tool, and an OpenTelemetry Collector with a Rego policy, plus a signed, tamper-evident evidence log and a compliance report. A 1 KB tool call takes about 8 ms (median) with 0% false alarms on the benchmark, and it runs on Kubernetes through a Helm chart.",
+    desc: "Taintward tracks sensitive data like names, SSNs and API keys through every tool call using OpenTelemetry. The LLM only sees placeholders like <PERSON_1>, and real values are tokenized or masked before they reach APIs or logs. It works as a Python SDK, an MCP gateway or an OpenTelemetry Collector policy.",
     stack: ["Python", "Go", "OpenTelemetry", "Rego", "MCP", "Presidio", "Kubernetes"],
     links: [
       { label: "Live site", href: "https://taintward.vercel.app" },
@@ -54,7 +54,7 @@ export const projects: Project[] = [
     no: "02",
     title: "IsoWatch",
     hook: "Catches the writes your database silently lost.",
-    desc: "Under PostgreSQL's default isolation level, two requests can overwrite each other with no error and no log line. IsoWatch reads the row version (xmin) behind every read and write, using RETURNING old.xmin from PostgreSQL 18, builds Adya's dependency graph inside an OpenTelemetry Collector processor, and adds an anomaly span to the trace that lost the write, with the SQL and the fix. Against real PostgreSQL 18 it counted exactly the writes the database lost on every run, with no false alarms, and it can move just the affected transactions to SERIALIZABLE.",
+    desc: "In PostgreSQL, two requests can overwrite each other with no error. IsoWatch reads each row's version (xmin) on every read and write, builds a dependency graph inside an OpenTelemetry Collector, and marks the trace that lost the write with the SQL and a fix.",
     stack: ["Go", "PostgreSQL 18", "OpenTelemetry Collector", "pgx", "Jaeger"],
     links: [
       { label: "Live site", href: "https://isowatch.vercel.app" },
@@ -68,7 +68,7 @@ export const projects: Project[] = [
     no: "03",
     title: "Reprobot",
     hook: "Checks security reports by running them.",
-    desc: "Open-source projects now get more security reports than they can read, and many describe bugs that do not exist. Reprobot checks a report by running it. The reporter sends a small repro.yaml with a commit and a proof of concept. Reprobot builds that exact commit with AddressSanitizer or UBSan, using a build profile the maintainers control, runs the proof of concept several times in a locked-down container with no network, and records what really happened: reproduced as claimed, reproduced differently, not reproduced, flaky or timed out. A crash only counts when the sanitizer writes its report to a secret log with a secret exit code, so a pasted report cannot fake one. Reports that crash the same way are grouped, and a Postgres job queue with leases runs them in parallel.",
+    desc: "A reporter sends a small repro.yaml with a commit and a proof of concept. Reprobot builds that commit with AddressSanitizer, runs the proof of concept in a sandbox with no network, and labels the report as reproduced, not reproduced or flaky.",
     stack: ["Go", "Docker", "AddressSanitizer", "PostgreSQL", "pgx"],
     links: [
       { label: "Live site", href: "https://reprobot-two.vercel.app" },
@@ -82,7 +82,7 @@ export const projects: Project[] = [
     no: "04",
     title: "Audio Visualizer",
     hook: "See how a neural network hears.",
-    desc: "A ResNet-style CNN classifies sounds into the 50 environmental categories of ESC-50, then shows its working: the mel spectrogram it was given, the feature maps of every convolutional layer, and the raw waveform. Inference runs on an A10G GPU on Modal, behind a Next.js front end.",
+    desc: "A ResNet-style CNN sorts sounds into 50 categories. It runs on a GPU on Modal, and the Next.js site shows the waveform, the spectrogram and what each layer picked up.",
     stack: ["PyTorch", "torchaudio", "Modal", "Next.js", "TypeScript"],
     links: [
       { label: "Live demo", href: "https://audiovisualizer-liard.vercel.app" },
@@ -96,7 +96,7 @@ export const projects: Project[] = [
     no: "05",
     title: "Resumez",
     hook: "Resumes, written a little like code.",
-    desc: "A full-stack resume builder for developers: write and customise with live preview, choose from several templates, and show projects with code snippets alongside the usual sections.",
+    desc: "A resume builder for developers. Write with a live preview, pick a template, and show projects with code snippets.",
     stack: ["JavaScript", "Full-stack web"],
     links: [
       { label: "Live demo", href: "https://resumez-zeta.vercel.app" },
