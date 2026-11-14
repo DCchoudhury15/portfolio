@@ -53,8 +53,10 @@ function strokeField(px: Uint8ClampedArray, w: number, h: number, cell: number):
 const FADE = 0.038, WIDTH = 2.5, AREA_PER_STROKE = 34, MAX_STROKES = 10000;
 // The swirl around the pointer: its radius in CSS pixels (never more than this share of the
 // painting's width), how much the paint is pulled towards the middle as it circles, how much
-// faster it moves there, and the share of new strokes that start inside it.
-const SWIRL_RADIUS = 110, SWIRL_WIDTH_SHARE = 0.24, SWIRL_PULL = 0.15, SWIRL_SPEED = 0.8, SWIRL_SHARE = 0.06;
+// faster it moves there, the share of new strokes that start inside it, how quickly the paint
+// turns to follow it, and how much wider and brighter the strokes are in the middle.
+const SWIRL_RADIUS = 95, SWIRL_WIDTH_SHARE = 0.2, SWIRL_PULL = 0.15, SWIRL_SPEED = 1.5, SWIRL_SHARE = 0.14;
+const SWIRL_TURN = 0.4, SWIRL_WIDEN = 0.6, SWIRL_BRIGHTEN = 0.22;
 
 const FADE_VERT = `attribute vec2 aPos; varying vec2 vUv; void main(){ vUv = vec2(aPos.x*0.5 + 0.5, 0.5 - aPos.y*0.5); gl_Position = vec4(aPos, 0.0, 1.0); }`;
 const FADE_FRAG = `precision mediump float; varying vec2 vUv; uniform sampler2D uTex; uniform float uAlpha;
@@ -129,8 +131,9 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
   };
 
   // Writes one corner of a stroke's quad: position, then the particle's colour.
+  let bright = 1;
   const corner = (m: number, px: number, py: number, i: number) => {
-    verts[m] = px; verts[m + 1] = py; verts[m + 2] = col[i * 3]; verts[m + 3] = col[i * 3 + 1]; verts[m + 4] = col[i * 3 + 2];
+    verts[m] = px; verts[m + 1] = py; verts[m + 2] = col[i * 3] * bright; verts[m + 3] = col[i * 3 + 1] * bright; verts[m + 4] = col[i * 3 + 2] * bright;
     return m + 5;
   };
 
@@ -189,7 +192,8 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
     for (let i = 0; i < n; i++) {
       if (--life[i] <= 0) { spawn(i); continue; }
       const c = Math.min(field.rows - 1, Math.floor(y[i] / field.cell)) * field.cols + Math.min(field.cols - 1, Math.floor(x[i] / field.cell));
-      let fx = field.dx[c], fy = field.dy[c], v = v0;
+      let fx = field.dx[c], fy = field.dy[c], v = v0, turn = 0.3, wide = half;
+      bright = 1;
       // Strokes have no arrow on them; keep going the way this particle was already going.
       if (fx * vx[i] + fy * vy[i] < 0) { fx = -fx; fy = -fy; }
       if (reach) {
@@ -200,16 +204,17 @@ export function flowPainting(canvas: HTMLCanvasElement, img: HTMLImageElement, f
           const k = 1 - d / reach, s = k * (2 - k);
           fx = fx * (1 - s) + (-oy / d - (ox / d) * SWIRL_PULL) * s;
           fy = fy * (1 - s) + (ox / d - (oy / d) * SWIRL_PULL) * s;
-          v = v0 * (1 + SWIRL_SPEED * s);
+          v = v0 * (1 + SWIRL_SPEED * s); turn = 0.3 + SWIRL_TURN * s;
+          wide = half * (1 + SWIRL_WIDEN * s); bright = 1 + SWIRL_BRIGHTEN * s;
         }
       }
-      vx[i] = vx[i] * 0.7 + fx * 0.3; vy[i] = vy[i] * 0.7 + fy * 0.3;
+      vx[i] = vx[i] * (1 - turn) + fx * turn; vy[i] = vy[i] * (1 - turn) + fy * turn;
       const nx = x[i] + vx[i] * v, ny = y[i] + vy[i] * v;
       if (nx < 0 || ny < 0 || nx >= w || ny >= h) { spawn(i); continue; }
       // A quad from where it was to where it is, reaching half a width past both ends like a
       // round brush tip, so successive steps overlap into one continuous stroke.
       const len = Math.hypot(nx - x[i], ny - y[i]) || 1;
-      const ux = (nx - x[i]) / len * half, uy = (ny - y[i]) / len * half, ox = -uy, oy = ux;
+      const ux = (nx - x[i]) / len * wide, uy = (ny - y[i]) / len * wide, ox = -uy, oy = ux;
       const ax = x[i] - ux, ay = y[i] - uy, bx = nx + ux, by = ny + uy;
       m = corner(m, ax + ox, ay + oy, i); m = corner(m, ax - ox, ay - oy, i); m = corner(m, bx + ox, by + oy, i);
       m = corner(m, bx + ox, by + oy, i); m = corner(m, ax - ox, ay - oy, i); m = corner(m, bx - ox, by - oy, i);
